@@ -47,10 +47,11 @@
   cursor: default;
 }
 
-/* Error + hint text */
+/* Login.css */
 .error {
-  color: #d33;
-  margin-top: 4px;
+  margin-top: 8px;
+  color: #d30000;
+  font-size: 0.95rem;
 }
 
 .hint {

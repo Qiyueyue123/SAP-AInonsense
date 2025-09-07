@@ -62,6 +62,11 @@ return (
         <input name="email" type="email" required />
         <label>Password</label>
         <input name="password" type="password" required />
+        {error && (
+            <p className="error" role="alert" aria-live="assertive">
+              {error}
+            </p>
+          )}
         <button type="submit">Login</button>
       </form>
       <p className="hint">
