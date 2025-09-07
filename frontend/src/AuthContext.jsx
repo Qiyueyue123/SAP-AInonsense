@@ -13,12 +13,6 @@ useEffect(() => {
   setReady(true);
 }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) setUser({ token });
-      setReady(true);
-  }, []);
-
   const login = (token, userData) => {
     localStorage.setItem("authToken", token);
     setUser({ token, ...userData });
