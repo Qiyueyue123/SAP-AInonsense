@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+}
+body, h1, h2, h3, p, ul {
+  margin: 0;
+  padding: 0;
+}
+:root {
+  --color-bg: #1f1f22;
+  --color-primary: #3498db;
+  --color-text: #333;
+}
+body {
+  font-family: system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+.page-center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
