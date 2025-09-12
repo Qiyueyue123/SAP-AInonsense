@@ -1,0 +1,54 @@
+{
+  "competitions": [
+    {
+      "title": "TechSprint Innovation Hackathon",
+      "date": "September 2022",
+      "description": "Won 1st place for building an AI-based feedback analysis tool as part of a team project."
+    },
+    {
+      "title": "National Data Challenge",
+      "date": "March 2021",
+      "description": "Reached the finals for predictive modeling work."
+    }
+  ],
+  "courses": [
+    {
+      "name": "Statistical Modeling and Data Visualization",
+      "provider": "Coursera",
+      "completion_date": ""
+    },
+    {
+      "name": "Business Intelligence Tools",
+      "provider": "edX",
+      "completion_date": ""
+    },
+    {
+      "name": "Advanced Excel for Business",
+      "provider": "LinkedIn Learning",
+      "completion_date": "July 2023"
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor's in Business Analytics",
+      "institution": "University of Michigan",
+      "graduation_date": "April 2021"
+    }
+  ],
+  "jobs_internships": [
+    {
+      "title": "Strategy Intern",
+      "company": "Accelera Consulting",
+      "start_date": "Summer 2023",
+      "end_date": "Summer 2023",
+      "description": "Contributed to market entry analysis and developed internal dashboards using Tableau."
+    },
+    {
+      "title": "Intern",
+      "company": "CloudGrid Technologies",
+      "start_date": "Early 2022",
+      "end_date": "Mid 2022",
+      "description": "Assisted in automating reporting systems using Python and SQL."
+    }
+  ]
+}

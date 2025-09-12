@@ -1,0 +1,43 @@
+/* sidebarNav.css */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 30px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-links a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 1.2rem;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-links a:hover {
+  background-color: #3498db;
+  color: white;
+}
+
+/* Styling for active link */
+.active-link {
+  background-color: #2980b9;
+  color: white;
+}
+
+.sidebar-links a:focus,
+.sidebar-links a:active {
+  outline: none;
+}

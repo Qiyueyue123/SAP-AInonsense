@@ -1,10 +1,12 @@
 import { useAuth } from "../AuthContext";
+import SidebarNav from "../components/sidenav"; 
 
 export default function Homepage() {
   const { logout, user } = useAuth();
 
   return (
     <div className="page-center">
+      <SidebarNav />
       <div className="auth-card">
         <h2>Welcome {user?.email || "user"}!</h2>
 
