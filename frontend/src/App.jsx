@@ -1,13 +1,19 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider, useAuth } from "./AuthContext";
 import PrivateRoute from "./PrivateRoute";
 import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
 import Homepage from "./pages/Homepage";
 import ResumeUpload from "./pages/ResumeUpload";
-import SidebarNav from "./components/sidenav";
 import Stats from "./pages/Stats";
+import SidebarNav from "./components/sidenav";
 import ResumeManager from './pages/ResumeManager';
+
+// Optional component to conditionally redirect based on auth status
+function RootRedirect() {
+  const { user } = useAuth();
+  return user ? <Navigate to="/homepage" replace /> : <Navigate to="/login" replace />;
+}
 
 export default function App() {
   return (
@@ -27,10 +33,14 @@ export default function App() {
             overflowY: "auto"
           }}>
             <Routes>
+              {/* Public routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/create-account" element={<CreateAccount />} />
-              <Route path="/" element={<Navigate to="/homepage" replace />} />
-              {/* Private routes */}
+
+              {/* Root path redirects based on auth */}
+              <Route path="/" element={<RootRedirect />} />
+
+              {/* Private/protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/homepage" element={<Homepage />} />
                 <Route path="/resume-upload" element={<ResumeUpload />} />
@@ -44,6 +54,3 @@ export default function App() {
     </Router>
   );
 }
-
-
-
