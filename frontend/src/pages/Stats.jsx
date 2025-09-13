@@ -1,4 +1,5 @@
 import React from "react";
+import Chatbot from '../components/Chatbot';
 
 export default function Stats({
   strengths = [],
@@ -83,20 +84,20 @@ export default function Stats({
 
         {/* Center: Chatbot */}
         <div style={{
-            background: "#f7f7f7",
-            borderRadius: "8px",
-            flex: 1.5,                    // increase flex to allocate more width
-            minHeight: "500px",          // set a minimum height for more vertical space
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",  // align content top to bottom, not centered
-            padding: "1rem",
-            overflowY: "auto"  
+          background: "#f7f7f7",
+          borderRadius: "6px",
+          flex: 1.5,
+          minHeight: "500px",
+          minWidth: "500px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          padding: "1rem",
+          overflowY: "auto"
         }}>
           <h4>CHATBOT</h4>
-          {/* Render passed chatbot component or fallback button */}
-          {chatbot || <button>Open Chatbot</button>}
+          <Chatbot />
         </div>
 
         {/* Right: Career Path */}
@@ -108,7 +109,7 @@ export default function Stats({
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minWidth: "250px"
+          minWidth: "300px"
         }}>
           <h4>Career Path</h4>
           <ul>
