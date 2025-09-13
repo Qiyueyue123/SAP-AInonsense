@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import auth as fb_auth, credentials
+from firebase_admin import auth as fb_auth, credentials, firestore
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -15,6 +15,8 @@ cred = credentials.Certificate(key_path)
 firebase_admin.initialize_app(cred, {
     "projectId": os.getenv("FIREBASE_PROJECT_ID")
 })
+
+db = firestore.client()
 
 app = Flask(__name__)
 
@@ -55,6 +57,23 @@ def verify_firebase_token(f):
 
 
 #ROUTES
+
+@app.route("/create-account", methods=["POST"])
+def create_account():
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        uid = data.get("uid")
+        if not email or not uid:
+            return jsonify({"error": "Missing required fields: email or uid"}), 400
+        users_ref = db.collection("users").document(uid)
+        # This will create a new document with the given UID, or update it if it exists
+        users_ref.set({"uid": uid, "email": email})
+        return jsonify({"message": "Account created successfully", "email": email, "uid": uid}), 200
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+
 @app.route("/upload-resume", methods = ["POST"])
 @verify_firebase_token
 def upload_resume():
