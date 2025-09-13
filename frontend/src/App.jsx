@@ -14,7 +14,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/penis" element={<h1>Penis</h1>} />
-          <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
 
           <Route element={<PrivateRoute />}>
