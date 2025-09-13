@@ -1,32 +1,29 @@
 import { useAuth } from "../AuthContext";
 import { useState } from "react";
-import SidebarNav from "../components/sidenav"; 
 import api from '../axios.js';
 
 const ResumeUpload = () => {
-  const [fileName, setFileName] = useState("");  // State to store the selected file name
-  const [file, setFile] = useState(null); 
+  const [fileName, setFileName] = useState("");  // Selected file name
+  const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
-  // Handle file selection
   const handleFileChange = (e) => {
-    const file = e.target.files[0];  // Get the first file (in case multiple files are selected)
+    const file = e.target.files[0];
     if (file) {
-      setFileName(file.name);  // Set the file name state to display it
+      setFileName(file.name);
     }
-    setFile(file)
+    setFile(file);
   };
+
   const handleUpload = async (e) => {
     e.preventDefault();
-
     if (!file) {
       alert("Please select a file to upload.");
       return;
     }
-
     const formData = new FormData();
-    formData.append("resume", file); // "resume" is the key the backend expects
+    formData.append("resume", file);
 
     setUploading(true);
     setUploadError("");
@@ -34,12 +31,13 @@ const ResumeUpload = () => {
     try {
       const response = await api.post("/upload-resume", formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Content type for file upload
+          "Content-Type": "multipart/form-data",
         },
       });
-
       console.log("Upload successful:", response.data);
-      // Handle success (e.g., show a success message)
+      // Optionally clear file input after success
+      setFile(null);
+      setFileName("");
     } catch (err) {
       console.error("Upload failed:", err);
       setUploadError("Failed to upload resume. Please try again.");
@@ -50,18 +48,17 @@ const ResumeUpload = () => {
 
   return (
     <div className="page-center">
-      <SidebarNav />
       <div className="auth-card">
         <p>Upload Resume</p>
         <form onSubmit={handleUpload}>
           <input 
             type="file" 
-            accept="application/pdf"  // Only accept PDFs
-            onChange={handleFileChange}  // Handle file selection
+            accept="application/pdf" 
+            onChange={handleFileChange} 
             style={{ marginBottom: "10px" }} 
           />
           {fileName && (
-            <p>File selected: <strong>{fileName}</strong></p>  // Display selected file name
+            <p>File selected: <strong>{fileName}</strong></p>
           )}
           {uploadError && <p className="error">{uploadError}</p>}
           <button type="submit" disabled={uploading}>
