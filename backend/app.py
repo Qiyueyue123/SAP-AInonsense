@@ -6,7 +6,13 @@ import os
 from dotenv import load_dotenv
 from agents.pdf_to_image import pdf_page_to_base64
 from agents.process_resume import process_resume
+from testScoring import ResumeProcessor
+import uuid
+import json
 
+
+
+resumeProcessor = ResumeProcessor()
 #silly config nonsense
 load_dotenv()
 
@@ -84,8 +90,15 @@ def upload_resume():
         return jsonify({"error": "No selected file"}), 400
     base64_image = pdf_page_to_base64(file)
     resume_json = process_resume(base64_image)
-    print(resume_json)
-    return jsonify(resume_json), 200
+    resume_json = resume_json
+    unique_id = str(uuid.uuid4())
+    filename = f"resume_{unique_id}.json"
+    with open(filename, "w") as file:
+        json.dump(resume_json,file)
+    print(type(filename))
+    returnResults = resumeProcessor.processResume(filename)
+    print(returnResults)
+    return returnResults, 200
 
 
 if __name__ == '__main__':
