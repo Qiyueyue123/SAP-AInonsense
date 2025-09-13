@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './Chatbot.css';
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -36,53 +37,27 @@ export default function Chatbot() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
-        style={{
-          flexGrow: 1,
-          minHeight: "450px",
-          width: "420px",
-          overflowY: "auto",
-          padding: "1rem",
-          border: "1px solid #ccc",
-          background: "#fff",
-          boxSizing: "border-box",
-          borderRadius: "8px"
-        }}
-      >
+    <div className="chatbot-container">
+      <div className="chatbot-messages">
         {messages.map((m, i) => (
           <div
             key={i}
-            style={{
-              textAlign: m.sender === "user" ? "right" : "left",
-              margin: "5px 0",
-              color: m.sender === "user" ? "blue" : "green",
-              whiteSpace: "pre-wrap"
-            }}
+            className={`chatbot-message ${m.sender === "user" ? "user" : "bot"}`}
           >
             {m.text}
           </div>
         ))}
       </div>
-      <div style={{ display: "flex", padding: "0.5rem", marginTop: "0.5rem" }}>
+      <div className="chatbot-input-area">
         <input
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") sendMessage(); }}
           placeholder="Type a message..."
-          style={{ flexGrow: 1, marginRight: "0.5rem", padding: "0.5rem" }}
+          className="chatbot-input"
         />
-        <button onClick={sendMessage} style={{
-          padding: "0.5rem 1rem",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}>
-          Send
-        </button>
+        <button onClick={sendMessage} className="chatbot-send-button">Send</button>
       </div>
     </div>
   );

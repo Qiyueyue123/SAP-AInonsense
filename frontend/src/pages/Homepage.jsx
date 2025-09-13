@@ -1,5 +1,6 @@
 import { useAuth } from "../AuthContext";
 import { Link } from 'react-router-dom';
+import './Homepage.css';
 
 export default function Homepage() {
   const { logout, user } = useAuth();
@@ -10,11 +11,11 @@ export default function Homepage() {
         <h2>Welcome {user?.email || "user"}!</h2>
         <p>You are now in the protected homepage.</p>
 
-        <Link to="/resume" style={{ display: 'block', margin: '1rem 0' }}>
+        <Link to="/resume" className="resume-link">
           Go to Resume Manager
         </Link>
 
-        <button onClick={logout} style={{ marginTop: "1rem" }}>
+        <button onClick={logout} className="logout-button">
           Logout
         </button>
       </div>

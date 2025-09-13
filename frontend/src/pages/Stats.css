@@ -1,0 +1,69 @@
+.stats-container {
+  width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Top section */
+.stats-top-section {
+  background: #f7f7f7;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.stats-top-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.strength-item {
+  color: green;
+}
+
+.weakness-item {
+  color: red;
+}
+
+/* Recommendations section */
+.stats-recommendations {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 2rem;
+}
+
+.recommendations-left {
+  flex: 2;
+}
+
+.mentors-section {
+  margin-top: 16px;
+}
+
+.chatbot-section {
+  background: #f7f7f7;
+  border-radius: 6px;
+  flex: 1.5;
+  min-height: 500px;
+  min-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.career-path-section {
+  background: #f7f7f7;
+  border-radius: 8px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 300px;
+}
