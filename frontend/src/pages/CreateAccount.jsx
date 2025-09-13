@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useAuth } from "../AuthContext";
-
+import api from "../axios.js"
 export default function CreateAccount() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -31,6 +31,20 @@ export default function CreateAccount() {
       const idToken = await cred.user.getIdToken();
       // store token + basic user in your AuthContext (same as Login)
       login(idToken, { email: cred.user.email, uid: cred.user.uid });
+      const stuff = {
+        email: cred.user.email,
+        uid: cred.user.uid
+      }
+      const response = await api.post("/create-account", stuff)
+
+      if (response.status === 200) {
+        console.log("Account created:", response.data);
+      } else if (response.status === 400) {
+        console.error("Error:", response.data.message);
+      } else {
+        console.error("Unexpected error:", response.status, response.data);
+      }
+
       navigate("/homepage", { replace: true });
     } catch (err) {
       console.error("[CreateAccount] error:", err);
