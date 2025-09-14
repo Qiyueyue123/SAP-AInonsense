@@ -9,7 +9,38 @@ from agents.process_resume import process_resume
 from testScoring import ResumeProcessor
 import uuid
 import json
+# would need to import a function to calculate the targetJobSkillScore based on target job
 
+skillScore = {
+  'Client Management':      0.000,
+  'UI/UX Design':           0.000,
+  'Communication':          0.000,
+  'Data Analysis':          0.000,
+  'Code Optimization':      0.000,
+  'Team Leadership':        0.000,
+  'Presentation Skills':    0.000,
+  'Database Management':    0.000,
+  'Automation/Scripting':   0.000,
+  'Problem Solving':        0.000
+}
+
+dummyTargetScore = {
+  'Client Management':      9.2,
+  'UI/UX Design':           5.1,
+  'Communication':         15.7,   
+  'Data Analysis':         10.8,
+  'Code Optimization':     16.3,  
+  'Team Leadership':       14.5,
+  'Presentation Skills':    7.6,
+  'Database Management':   11.9,
+  'Automation/Scripting':  12.6,
+  'Problem Solving':       17.4    
+}
+dummyCareerPath = [
+    "Software Developer",
+    "Senior Software Engineer",
+    "Tech Lead",
+]
 
 
 resumeProcessor = ResumeProcessor()
@@ -68,13 +99,30 @@ def verify_firebase_token(f):
 def create_account():
     try:
         data = request.get_json()
+        print(data)
         email = data.get("email")
         uid = data.get("uid")
-        if not email or not uid:
-            return jsonify({"error": "Missing required fields: email or uid"}), 400
+        job = data.get("job")
+        targetJob = data.get("targetJob")
+        # You would run the imported function to calculate score for target job here. Then the mentorScore and courseScore should be the same value.
+        if not(email and uid and job and targetJob):
+            return jsonify({"error": "Missing required fields: email or uid or job or targetJob"}), 400
         users_ref = db.collection("users").document(uid)
         # This will create a new document with the given UID, or update it if it exists
-        users_ref.set({"uid": uid, "email": email})
+
+        #would also need to call an imported function to calculate the career path accordingly
+        currentCareerPath = [job] + dummyCareerPath.copy() + [targetJob]
+        users_ref.set({ "uid": uid,
+                        "email": email,
+                        "job" : job,
+                        "targetJob" : targetJob,
+                        "skillScore": skillScore,
+                        "targetScore": dummyTargetScore,
+                        "mentorScore": dummyTargetScore,
+                        "courseScore": dummyTargetScore,
+                        "careerPath" : currentCareerPath
+                          })
+        
         return jsonify({"message": "Account created successfully", "email": email, "uid": uid}), 200
     except Exception as e:
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
