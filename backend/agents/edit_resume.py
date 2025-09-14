@@ -16,7 +16,7 @@ key_path = os.path.abspath(os.path.join(project_root, rel_path))
 print("Using Google credentials at:", key_path)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
 
-def edit_resume(header, content, text_rephrase, mode): #mode should be 1 or 2 (1 is paraphrase, 2 is add new section)
+def edit_resume(header, content, mode, text_rephrase = ""): #mode should be 1 or 2 (1 is paraphrase, 2 is add new section)
     print('edit resume reached')
     model = init_chat_model("gemini-2.5-flash", model_provider="google_genai", temperature=1.2)
     
@@ -62,7 +62,7 @@ def edit_resume(header, content, text_rephrase, mode): #mode should be 1 or 2 (1
     print('process resume ended')
     return(response_data)
 
-# FOR TESTING
+
 # header = "INTERNSHIP | WORK EXPERIENCE"
 # content = "worked at E&Y as an intern, coordinated weekly meetings for group of 20 team members, and worked on a website for the internal audit team"
 # text_rephrase = "Supported in refining risk management strategies, creating reports for clients, and staying up to date with industry regulations and best practices."
