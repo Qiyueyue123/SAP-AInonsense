@@ -7,11 +7,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
-useEffect(() => {
-  const token = localStorage.getItem("authToken");
-  if (token) setUser({ token });
-  setReady(true);
-}, []);
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) setUser({ token });
+    setReady(true);
+  }, []);
 
   const login = (token, userData) => {
     localStorage.setItem("authToken", token);
@@ -21,16 +21,15 @@ useEffect(() => {
   const logout = () => {
     localStorage.removeItem("authToken");
     setUser(null);
-    navigate("/"); 
+    window.location = "/"; // <-- or similar, since navigate() wasn't used
   };
 
- 
   useEffect(() => {
     setLogoutHandler(logout);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, ready, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, ready }}>
       {children}
     </AuthContext.Provider>
   );

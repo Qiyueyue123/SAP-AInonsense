@@ -1,0 +1,46 @@
+.page-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212; /* dark background */
+  color: #e0e0e0; /* light text for contrast */
+}
+
+.auth-card {
+  background: #1e1e1e; /* dark card background */
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  width: 320px;
+  color: #e0e0e0;
+}
+
+.resume-link {
+  display: block;
+  margin: 1rem 0;
+  color: #4f90ff; /* brighter link color */
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.resume-link:hover {
+  text-decoration: underline;
+}
+
+.logout-button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background-color: #4f90ff; /* bright blue button */
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #3d73cc; /* darker blue on hover */
+}
