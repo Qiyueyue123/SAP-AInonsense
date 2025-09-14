@@ -3,6 +3,10 @@ import os
 from sentence_transformers import SentenceTransformer, util
 from openai import OpenAI
 from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage
+import re
+import uuid
 load_dotenv()
 
 
@@ -58,7 +62,7 @@ class ResumeProcessor:
             "jobs_internships": 2,
             "courses": 0.5,
             "competitions": 0.8,
-            "projects":0.3
+            "projects":0.7
         }
 
         self.source_caps = {
@@ -66,7 +70,7 @@ class ResumeProcessor:
             "jobs_internships": 10,
             "courses": 4,
             "competitions": 4,
-            "projects":4
+            "projects": 4
         }
 
     def similarityScore(self, text, keyword):
@@ -74,6 +78,44 @@ class ResumeProcessor:
             self.model.encode(text),
             self.model.encode(keyword)
         )[0][0].item()
+    
+
+    def parseResponseData(self,response_data):
+        """
+        Safely parses a response into a dictionary if it's a valid JSON string or already a dict.
+        
+        Returns:
+            dict: Parsed JSON data if successful.
+            None: If parsing fails or input is invalid.
+        """
+        if isinstance(response_data, dict):
+            print('process resume ended - already dict')
+            return response_data
+
+        if isinstance(response_data, str):
+            try:
+                cleaned_response = response_data.strip()
+
+                # Remove markdown-style code block markers
+                if cleaned_response.startswith('```json'):
+                    cleaned_response = re.sub(r'^```json\s*', '', cleaned_response)
+                if cleaned_response.startswith('```'):
+                    cleaned_response = re.sub(r'^```\s*', '', cleaned_response)
+                if cleaned_response.endswith('```'):
+                    cleaned_response = re.sub(r'\s*```$', '', cleaned_response)
+
+                parsed_json = json.loads(cleaned_response)
+                print('process resume ended - parsed from string')
+                return parsed_json
+
+            except json.JSONDecodeError as e:
+                print(f"JSON parsing error: {e}")
+                print(f"Problematic content (truncated): {response_data[:500]}")
+                return None
+
+        print('process resume ended - unexpected type')
+        return None
+
 
     def askGpt(self, prompt):
         response = self.client.chat.completions.create(
@@ -93,8 +135,48 @@ class ResumeProcessor:
             return json.dumps(self.skills, indent=2)
         def to_dict(self):
             return self.skills
+        def returnSkill(self):
+            return self.skills
+    def restructureJson(self,jsonFile):
+        folderPath = 'temp'
 
+        # Create the folder if it doesn't exist
+        os.makedirs(folderPath, exist_ok=True)
+
+        
+
+        data = None
+        with open(jsonFile, 'r') as file:
+            data = json.load(file)
+        
+        query = """
+        Please analyze the json file and restructure it into its respective sections. For each section, return the following:
+        The output should be a JSON dictionary where each section is a key (header) and has a value (a list referring to the content):
+        - "header": the section's title. The header should be one of 5 entries from this list:
+        ["education","jobs_internships","courses","competitions","projects"]
+        - "content": the content within that section this will be a list of dictionaries. Each dictionary should look as such:
+        {"name": (the name of the project, job title at company, degree, course name or competition name ),
+        "date": (start date. As precise as can be inferred),
+        "description": (remaining content of entry)}
+        
+        IMPORTANT: Return ONLY valid JSON format. Do not include any explanatory text, markdown formatting, or code blocks.
+
+        The file is below:
+        """ + f"{data}"
+        
+        response = self.askGpt(query)
+        parsedResponse = self.parseResponseData(response)
+        if parsedResponse == None:
+            return None
+        random_filename = f"{uuid.uuid4()}restructured.json"
+        filepath = os.path.join(folderPath, random_filename)
+        with open(filepath, 'w') as restructuredFile:
+            json.dump(parsedResponse, restructuredFile, indent=4)
+        return filepath
     def processResume(self, filepath):
+        filepath = self.restructureJson(filepath)
+        if filepath == None:
+            return
         # Load resume
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File {filepath} not found.")
@@ -190,12 +272,12 @@ class ResumeProcessor:
 You are a career advisor AI. Based on the following skill scores (out of 20), provide one concise sentence highlighting the person's strengths, and one concise sentence highlighting their weaknesses. Be specific and only output two sentences — no bullet points, no extra commentary.
 
 Skill Scores:
-{returnStudentSkill}
+{returnStudentSkill.returnSkill}
 """
         feedback_response = self.askGpt(feedback_prompt)
 
         # Return
-        return [returnStudentSkill, feedback_response]
+        return [returnStudentSkill.returnSkill(), feedback_response]
 if __name__ == "__main__":
     processor = ResumeProcessor()
     result = processor.processResume("testResume.json")

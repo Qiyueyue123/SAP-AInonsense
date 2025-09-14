@@ -15,15 +15,12 @@ def process_resume(base64_image):
 
     query = """
     Please analyze the resume image and split it into its respective sections. For each section, return the following:
-    The output should be a JSON dictionary where each section is a key (header) and has a value (a list referring to the content):
-    - "header": the section's title. The header should be one of 5 entries from this list:
-    ["education","jobs_internships","courses","competitions","projects"]
-    - "content": the content within that section this will be a list of dictionaries. Each dictionary should look as such:
-    {"name": (the name of the project, job title at company, degree, course name or competition name ),
-    "date": (start date. As precise as can be inferred),
-    "description": (remaining content of entry)}
-    
-    IMPORTANT: Return ONLY valid JSON format. Do not include any explanatory text, markdown formatting, or code blocks.
+    1. A header (the title of the section).
+    2. Content or a list of entries within that section (like job titles, university names, skills, etc.).
+    Ensure that the result is dynamic, meaning that if a section does not exist in the resume (like 'Hobbies' or 'Projects'), it is simply omitted.
+    The output should be a JSON dictionary where each section contains:
+    - "header": the section's title.
+    - "content": the content within that section (this could be a list of strings or more detailed information depending on the section).
     """
     message = HumanMessage(
         content=[

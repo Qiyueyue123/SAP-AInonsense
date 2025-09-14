@@ -83,6 +83,10 @@ def create_account():
 @app.route("/upload-resume", methods = ["POST"])
 @verify_firebase_token
 def upload_resume():
+    folderPath = 'temp'
+
+    # Create the folder if it doesn't exist
+    os.makedirs(folderPath, exist_ok=True)
     if 'resume' not in request.files:
         return jsonify({"error": "No file part"}), 400
     file = request.files['resume']  # Access the uploaded file by name
@@ -93,12 +97,17 @@ def upload_resume():
     resume_json = resume_json
     unique_id = str(uuid.uuid4())
     filename = f"resume_{unique_id}.json"
-    with open(filename, "w") as file:
+    filepath = os.path.join(folderPath, filename)
+    with open(filepath, "w") as file:
         json.dump(resume_json,file)
-    print(type(filename))
-    returnResults = resumeProcessor.processResume(filename)
+    print(type(filepath))
+    returnResults = resumeProcessor.processResume(filepath)
     print(returnResults)
-    return returnResults, 200
+    returnResultsJSON = {
+        "skillScore" : returnResults[0],
+        "feedback" : returnResults[1]
+    }
+    return returnResultsJSON, 200
 
 
 if __name__ == '__main__':
