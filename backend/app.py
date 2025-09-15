@@ -9,6 +9,7 @@ from agents.process_resume import process_resume
 from agents.career_coach import get_chatbot_response, retrieve_relevant_memory, retrieve_short_term_memory
 from testScoring import ResumeProcessor
 from validCareerChecker import matchJob
+from careerPathConstructor import careerPathConstructor
 import uuid
 import json
 # would need to import a function to calculate the targetJobSkillScore based on target job
@@ -111,11 +112,15 @@ def create_account():
             return jsonify({"error": "Missing required fields: email or uid or job or target job"}), 400
         if matchJob(db,job) == "" or matchJob(db,targetJob) == "":
             return jsonify({"error": "Invalid job or target job. Pick a valid job and target job"}), 400
+        else:
+            job = matchJob(db,job)
+            targetJob = matchJob(db,targetJob)
         users_ref = db.collection("users").document(uid)
         # This will create a new document with the given UID, or update it if it exists
 
         #would also need to call an imported function to calculate the career path accordingly
-        currentCareerPath = [job] + dummyCareerPath.copy() + [targetJob]
+        currentCareerPath = careerPathConstructor(db, job, targetJob)
+        print(currentCareerPath)
         users_ref.set({ "uid": uid,
                         "email": email,
                         "job" : job,
@@ -289,6 +294,29 @@ def before_request_func():
         resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
         return resp
 
+
+
+@app.route("/stats", methods=["GET"])
+@verify_firebase_token
+def get_stats():
+    # Prefer UID from verified token; fallback to ?uid=...
+    uid = getattr(request, "user", {}).get("uid") or request.args.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid"}), 400
+
+    snap = db.collection("users").document(uid).get()
+    if not snap.exists:
+        return jsonify({"error": "User not found"}), 404
+
+    d = snap.to_dict() or {}
+    return jsonify({
+        "courses": d.get("course_rec", []),
+        "mentors": d.get("mentors") or d.get("mentor", []),
+        "careerPath": d.get("careerPath", []),
+        "skillScore": d.get("skillScore", {})  # 👈 NEW
+    }), 200
+
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
