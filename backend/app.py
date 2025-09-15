@@ -133,6 +133,7 @@ def create_account():
 def upload_resume():
     uid = request.form.get("uid")
     folderPath = 'temp'
+    print("UID RECEIVED: " + uid)
 
     # Create the folder if it doesn't exist
     os.makedirs(folderPath, exist_ok=True)
@@ -144,17 +145,19 @@ def upload_resume():
     base64_image = pdf_page_to_base64(file)
     resume_json = process_resume(base64_image)
     doc_ref = db.collection("users").document(uid)
-    json_results = resumeProcessor.parseResponseData(resume_json)
-    print("\n important shit here")
-    print(json_results)
-    print(type(json_results))
-    doc_ref.update({"resume": json_results})
+
     unique_id = str(uuid.uuid4())
     filename = f"resume_{unique_id}.json"
     filepath = os.path.join(folderPath, filename)
     with open(filepath, "w") as file:
         json.dump(resume_json,file)
     print(type(filepath))
+
+    json_filepath_for_db = resumeProcessor.restructureJson(filepath)
+    with open(json_filepath_for_db, "r") as file:
+        json_data = json.load(file)
+        doc_ref.set({"resume": json_data}) 
+
     returnResults = resumeProcessor.processResume(filepath)
     
     print(returnResults)
@@ -163,12 +166,6 @@ def upload_resume():
         "feedback" : returnResults[1]
     }
     return returnResultsJSON, 200
-
-# @app.route('/chat', methods=['POST'])
-# def chat():
-#     user_message = request.json.get('user_message')
-#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
-#     user_profile = db.collection('users').document(user_id).get().to_dict()
 
 
 if __name__ == '__main__':
