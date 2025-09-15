@@ -137,41 +137,68 @@ def create_account():
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
-@app.route("/upload-resume", methods = ["POST"])
+@app.route("/upload-resume", methods=["POST"])
 @verify_firebase_token
 def upload_resume():
-    uid = request.form.get("uid")
-    folderPath = 'temp'
+    """
+    Upload a resume PDF (multipart/form-data, field name 'resume').
+    Uses the Firebase token's UID; does not trust a form 'uid'.
+    Writes only the 'resume' field (merge) without overwriting other user fields.
+    """
+    try:
+        # ------------------------------------------------------------------------------
+        # CHANGED: get uid from verified Firebase token (set in decorator)
+        # ------------------------------------------------------------------------------
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
 
-    # Create the folder if it doesn't exist
-    os.makedirs(folderPath, exist_ok=True)
-    if 'resume' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['resume']  # Access the uploaded file by name
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    base64_image = pdf_page_to_base64(file)
-    resume_json = process_resume(base64_image)
-    doc_ref = db.collection("users").document(uid)
-    json_results = resumeProcessor.parseResponseData(resume_json)
-    print("\n important shit here")
-    print(json_results)
-    print(type(json_results))
-    doc_ref.set({"resume": json_results})
-    unique_id = str(uuid.uuid4())
-    filename = f"resume_{unique_id}.json"
-    filepath = os.path.join(folderPath, filename)
-    with open(filepath, "w") as file:
-        json.dump(resume_json,file)
-    print(type(filepath))
-    returnResults = resumeProcessor.processResume(filepath)
-    
-    print(returnResults)
-    returnResultsJSON = {
-        "skillScore" : returnResults[0],
-        "feedback" : returnResults[1]
-    }
-    return returnResultsJSON, 200
+        folderPath = "temp"
+        os.makedirs(folderPath, exist_ok=True)
+
+        # Validate multipart form + file
+        if "resume" not in request.files:
+            return jsonify({"error": "No file part 'resume'"}), 400
+
+        file = request.files["resume"]
+        if file.filename == "":
+            return jsonify({"error": "No selected file"}), 400
+
+        # PDF -> base64 image(s) -> structured resume JSON
+        base64_image = pdf_page_to_base64(file)
+        resume_json = process_resume(base64_image)
+
+        # Parse to your schema
+        json_results = resumeProcessor.parseResponseData(resume_json)
+        print("\n[upload-resume] parsed resume results:")
+        print(json_results, type(json_results))
+
+        # ------------------------------------------------------------------------------
+        # CHANGED: upsert ONLY the "resume" field (no overwrite of other fields)
+        # ------------------------------------------------------------------------------
+        doc_ref = db.collection("users").document(uid)
+        doc_ref.set({"resume": json_results}, merge=True)
+
+        # Optional: persist raw resume JSON to disk
+        unique_id = str(uuid.uuid4())
+        filename = f"resume_{unique_id}.json"
+        filepath = os.path.join(folderPath, filename)
+        with open(filepath, "w") as f:
+            json.dump(resume_json, f)
+
+        # Run scoring pipeline
+        result_tuple = resumeProcessor.processResume(filepath)
+        # assuming processResume returns (skill_score, feedback)
+        skill_score, feedback = result_tuple if isinstance(result_tuple, (list, tuple)) else (None, None)
+
+        return jsonify({
+            "skillScore": skill_score,
+            "feedback": feedback
+        }), 200
+
+    except Exception as e:
+        # In production, log stacktrace with logging library
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
 # @app.route('/chat', methods=['POST'])
 # def chat():
@@ -223,6 +250,29 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+
+@app.route("/stats", methods=["GET"])
+@verify_firebase_token
+def get_stats():
+    # Prefer UID from verified token; fallback to ?uid=...
+    uid = getattr(request, "user", {}).get("uid") or request.args.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid"}), 400
+
+    snap = db.collection("users").document(uid).get()
+    if not snap.exists:
+        return jsonify({"error": "User not found"}), 404
+
+    d = snap.to_dict() or {}
+    return jsonify({
+        "courses": d.get("course_rec", []),
+        "mentors": d.get("mentors") or d.get("mentor", []),
+        "careerPath": d.get("careerPath", []),
+        "skillScore": d.get("skillScore", {})  # 👈 NEW
+    }), 200
+
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
