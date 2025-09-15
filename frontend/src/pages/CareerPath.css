@@ -1,0 +1,174 @@
+/* General Styling for the Career Path Page */
+.career-path-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.career-path-content {
+  margin-left: 270px; /* Sidebar space */
+  padding: 40px;
+  max-width: 100%;
+  flex-grow: 1;
+  color: #2c3e50;
+  border-radius: 8px;
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #3b4444;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Career Path Chain */
+.career-path-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.career-path-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Current Job */
+.current-job {
+  background-color: #0f7378;
+  color: #1f1f22;
+}
+
+.current-job h3 {
+  color: #1f1f22;
+}
+
+/* Intermediate Jobs */
+.intermediate-job {
+  background-color: #b69510;
+  color: #1f1f22;
+}
+
+.intermediate-job h3 {
+  color: #1f1f22;
+}
+
+/* Final Job */
+.final-job {
+  background-color: #c0611d;
+  color: #1f1f22;
+}
+
+.final-job h3 {
+  color: #1f1f22;
+}
+
+.career-path-item h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.job-title p {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Editable Job Title Input */
+.job-title input {
+  font-size: 1.1rem;
+  padding: 8px;
+  border: 1px solid #1f1f22;
+  border-radius: 5px;
+  width: 250px;
+  background-color: #2c2c31;
+  color: rgb(164, 157, 157);
+}
+
+/* Edit Job Title Section */
+.edit-job-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-job-container input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #1f1f22;
+  border-radius: 5px;
+  width: 250px;
+}
+
+.edit-job-container button {
+  background-color: #3498db;
+  color: 1f1f22;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-job-container button:hover {
+  background-color: #2980b9;
+}
+
+/* Edit Button */
+.edit-button {
+  background-color: #0d78dc;
+  color: 1f1f22;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #0f7398;
+}
+
+/* Save and Cancel Buttons */
+.save-cancel-container {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.save-button,
+.cancel-button {
+  background-color: #3498db;
+  color: 1f1f22;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.save-button:hover,
+.cancel-button:hover {
+  background-color: #2980b9;
+}
+
+.cancel-button {
+  background-color: #e74c3c;
+}
+
+.cancel-button:hover {
+  background-color: #c0392b;
+}
