@@ -45,7 +45,6 @@ dummyCareerPath = [
     "Tech Lead",
 ]
 
-
 resumeProcessor = ResumeProcessor()
 #silly config nonsense
 load_dotenv()
@@ -64,6 +63,7 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN", "*")
 print("CORS frontend origin:", frontend_origin)
 
 CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_ORIGIN", "*")}})
+
 
 @app.after_request
 def after_request(response):
@@ -173,18 +173,18 @@ def upload_resume():
         print("\n[upload-resume] parsed resume results:")
         print(json_results, type(json_results))
 
-        # ------------------------------------------------------------------------------
-        # CHANGED: upsert ONLY the "resume" field (no overwrite of other fields)
-        # ------------------------------------------------------------------------------
-        doc_ref = db.collection("users").document(uid)
-        doc_ref.set({"resume": json_results}, merge=True)
-
         # Optional: persist raw resume JSON to disk
         unique_id = str(uuid.uuid4())
         filename = f"resume_{unique_id}.json"
         filepath = os.path.join(folderPath, filename)
         with open(filepath, "w") as f:
             json.dump(resume_json, f)
+
+        doc_ref = db.collection("users").document(uid)
+        json_filepath_for_db = resumeProcessor.restructureJson(filepath)
+        with open(json_filepath_for_db, "r") as file:
+            json_data = json.load(file)
+            doc_ref.set({"resume": json_data}) 
 
         # Run scoring pipeline
         result_tuple = resumeProcessor.processResume(filepath)
@@ -200,79 +200,8 @@ def upload_resume():
         # In production, log stacktrace with logging library
         return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
-# @app.route('/chat', methods=['POST'])
-# def chat():
-#     user_message = request.json.get('user_message')
-#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
-#     user_profile = db.collection('users').document(user_id).get().to_dict()
-
-# @app.route('/chat', methods=['POST'])
-# def chat():
-#     user_message = request.json.get('user_message')
-#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
-#     user_profile = db.collection('users').document(user_id).get().to_dict()
-
-@app.route("/api/chat/history", methods=["GET"])
-@verify_firebase_token
-def get_chat_history():
-    """
-    Fetches the last 10 messages for the authenticated user.
-    This matches the endpoint the frontend is calling.
-    """
-    try:
-        user_id = request.user['uid']
-        chat_history = retrieve_short_term_memory(user_id, db)
-        return jsonify({"chatHistory": chat_history}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/api/chat", methods=["POST"])
-@verify_firebase_token
-def chat():
-    """
-    Receives a message from the user, gets a response from the AI,
-    and updates the chat history.
-    """
-    try:
-        user_id = request.user['uid']
-        data = request.json
-        user_message = data.get('message')
-
-        if not user_message:
-            return jsonify({"error": "No message provided"}), 400
-
-        # The get_chatbot_response function handles retrieving history and context
-        ai_response = get_chatbot_response(user_message, user_id, db)
-        
-        # The frontend expects a 'reply' key in the response
-        return jsonify({"reply": ai_response.get('content')}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 
-
-@app.route("/stats", methods=["GET"])
-@verify_firebase_token
-def get_stats():
-    # Prefer UID from verified token; fallback to ?uid=...
-    uid = getattr(request, "user", {}).get("uid") or request.args.get("uid")
-    if not uid:
-        return jsonify({"error": "Missing uid"}), 400
-
-    snap = db.collection("users").document(uid).get()
-    if not snap.exists:
-        return jsonify({"error": "User not found"}), 404
-
-    d = snap.to_dict() or {}
-    return jsonify({
-        "courses": d.get("course_rec", []),
-        "mentors": d.get("mentors") or d.get("mentor", []),
-        "careerPath": d.get("careerPath", []),
-        "skillScore": d.get("skillScore", {})  # 👈 NEW
-    }), 200
-
-    
 
 if __name__ == '__main__':
     app.run(debug=True)
