@@ -1,21 +1,8 @@
 import os
 from dotenv import load_dotenv
-import firebase_admin
-from firebase_admin import auth as fb_auth, credentials, firestore
-#silly config nonsense
-load_dotenv()
-
-key_path = os.getenv("FIREBASE_GOOGLE_CREDENTIALS")
-cred = credentials.Certificate(key_path)
-firebase_admin.initialize_app(cred, {
-    "projectId": os.getenv("FIREBASE_PROJECT_ID")
-})
-
-db = firestore.client()
 
 
-
-def get_user_data(uid):
+def get_user_data(db,uid):
     userRef = db.collection('users').document(uid)
     userDoc = userRef.get().to_dict()
     return userDoc
@@ -24,7 +11,7 @@ def getterCourseScore(uid):
     courseScore = get_user_data(uid)["courseScore"]
     return courseScore
 
-def setterCourseScore(uid, modifierVector):
+def setterCourseScore(db,uid, modifierVector):
     courseScore = getterCourseScore(uid)
 
     for key, mod_value in modifierVector.items():

@@ -1,21 +1,7 @@
 import os
 from dotenv import load_dotenv
-import firebase_admin
-from firebase_admin import auth as fb_auth, credentials, firestore
-#silly config nonsense
-load_dotenv()
 
-key_path = os.getenv("FIREBASE_GOOGLE_CREDENTIALS")
-cred = credentials.Certificate(key_path)
-firebase_admin.initialize_app(cred, {
-    "projectId": os.getenv("FIREBASE_PROJECT_ID")
-})
-
-db = firestore.client()
-
-
-
-def get_user_data(uid):
+def get_user_data(db,uid):
     userRef = db.collection('users').document(uid)
     userDoc = userRef.get().to_dict()
     return userDoc
@@ -24,7 +10,7 @@ def getterMentorScore(uid):
     mentorScore = get_user_data(uid)["mentorScore"]
     return mentorScore
 
-def setterMentorScore(uid, modifierVector):
+def setterMentorScore(db, uid, modifierVector):
     mentorScore = getterMentorScore(uid)
 
     for key, mod_value in modifierVector.items():
@@ -38,8 +24,6 @@ def setterMentorScore(uid, modifierVector):
 
 def main():
     test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"
-    print(getterMentorScore(test_uid))
-    print(setterMentorScore(test_uid,{}))
 
 
 if __name__ == "__main__":
