@@ -1,0 +1,40 @@
+{
+    "education": [
+        {
+            "name": "Nanyang Technological University, Singapore",
+            "date": "Aug 2024 \u2013 May 2028 (Expected)",
+            "description": "(DOUBLE-DEGREE) Bachelor of Computing (Honours), Computer Science / Bachelor of Business, Honours (Distinction) | CGPA 4.3/5 (Current), Relevant Modules \u2013 Introduction to Computational Thinking & Programming, Digital Logic, XXXXX"
+        },
+        {
+            "name": "Singapore Polytechnic, Singapore",
+            "date": "Apr 2019 \u2013 Mar 2022",
+            "description": "Diploma in Business Information Technology, GPA 4/4 | CCA Gold with Honours"
+        }
+    ],
+    "projects": [
+        {
+            "name": "Autonomous Robotic System",
+            "date": "Month Year \u2013 Month Year",
+            "description": "Collaborated with 4 cross-disciplinary teams to design and build a robotic system capable of autonomous exploration, image detection, and control signal communication using an Android-powered device. Designed and implemented a user-friendly graphical user interface (GUI) in Java, facilitating real-time interaction between the robotic system and the control device over a period of 12 weeks. Established reliable wireless communication between the robotic system and Android devices using Bluetooth, enhancing the system's responsiveness and control."
+        }
+    ],
+    "jobs_internships": [
+        {
+            "name": "Ernst & Young, Singapore",
+            "date": "Dec 2020 \u2013 Feb 2021",
+            "description": "Consulting, Technology Risk Intern, Collaborated with team to identify and evaluate technology-related risks undertaking assessments of clients' IT systems and processes and recommend ways to mitigate identified risks. Supported in refining risk management strategies, creating reports for clients, and staying up to date with industry regulations and best practices."
+        },
+        {
+            "name": "Singapore Arm Forces",
+            "date": "June 2022 \u2013 Jan 2024",
+            "description": "1st Battalion Commando | Lieutenant, Planned and led team of 30 men to train and participate in major exercises locally and in overseas."
+        },
+        {
+            "name": "AIESEC IN NTU",
+            "date": "Aug 2024 \u2013 Present",
+            "description": "Incoming Global Exchange Team, Sourced internships for students from other countries, providing cross-cultural learning opportunities. Developed cross-cultural communication skills by collaborating with team members from various countries and working with international partners."
+        }
+    ],
+    "competitions": [],
+    "courses": []
+}
