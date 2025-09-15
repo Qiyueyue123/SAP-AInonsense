@@ -1,39 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import './Chatbot.css';
+import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "../AuthContext"; // adjust path if needed
+import "./Chatbot.css";
 
 export default function Chatbot() {
+  const { user } = useAuth();              // expects { token, ...userData }
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // Fetch chat history when component mounts
+  // auto-scroll to the latest message
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  useEffect(scrollToBottom, [messages]);
+
+  // Fetch chat history when user is available
   useEffect(() => {
-    fetch("/api/chat/history", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setMessages(data.chatHistory || []))
-      .catch(() => setMessages([]));
-  }, []);
+    if (!user?.token) return;
+
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_API}/api/chat/history`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        // Expecting backend history as [{role:'user'|'assistant', content:'...'}]
+        const formatted = (data?.chatHistory || []).map((m) => ({
+          sender: m.role === "user" ? "user" : "bot",
+          text: m.content,
+        }));
+        setMessages(formatted);
+      } catch (err) {
+        console.error("Failed to fetch chat history:", err);
+        setMessages([]); // safe fallback
+      }
+    };
+
+    fetchHistory();
+  }, [user?.token]);
 
   // Send user messages and receive bot replies
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !user?.token || isLoading) return;
 
-    const userMessage = { sender: "user", text: input };
-    setMessages(prev => [...prev, userMessage]);
+    const text = input;
+    setInput(""); // clear immediately for snappy UX
+    setIsLoading(true);
+
+    // add user's message right away
+    setMessages((prev) => [...prev, { sender: "user", text }]);
 
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_API}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ message: input }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ message: text }),
       });
-      const data = await response.json();
-      setMessages(prev => [...prev, { sender: "bot", text: data.reply }]);
-    } catch {
-      setMessages(prev => [...prev, { sender: "bot", text: "Error: Unable to respond." }]);
-    }
 
-    setInput("");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: data?.reply ?? "…" },
+      ]);
+    } catch (e) {
+      console.error(e);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "Error: Unable to respond." },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,17 +94,28 @@ export default function Chatbot() {
             {m.text}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
+
       <div className="chatbot-input-area">
         <input
           type="text"
           value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") sendMessage(); }}
-          placeholder="Type a message..."
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") sendMessage();
+          }}
+          placeholder={user ? "Type a message..." : "Log in to chat"}
           className="chatbot-input"
+          disabled={!user || isLoading}
         />
-        <button onClick={sendMessage} className="chatbot-send-button">Send</button>
+        <button
+          onClick={sendMessage}
+          className="chatbot-send-button"
+          disabled={!user || isLoading}
+        >
+          {isLoading ? "…" : "Send"}
+        </button>
       </div>
     </div>
   );

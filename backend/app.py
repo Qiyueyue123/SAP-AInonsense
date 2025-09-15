@@ -6,7 +6,10 @@ import os
 from dotenv import load_dotenv
 from agents.pdf_to_image import pdf_page_to_base64
 from agents.process_resume import process_resume
+from agents.career_coach import get_chatbot_response, retrieve_relevant_memory, retrieve_short_term_memory
 from testScoring import ResumeProcessor
+from validCareerChecker import matchJob
+from careerPathConstructor import careerPathConstructor
 import uuid
 import json
 # would need to import a function to calculate the targetJobSkillScore based on target job
@@ -106,12 +109,18 @@ def create_account():
         targetJob = data.get("targetJob")
         # You would run the imported function to calculate score for target job here. Then the mentorScore and courseScore should be the same value.
         if not(email and uid and job and targetJob):
-            return jsonify({"error": "Missing required fields: email or uid or job or targetJob"}), 400
+            return jsonify({"error": "Missing required fields: email or uid or job or target job"}), 400
+        if matchJob(db,job) == "" or matchJob(db,targetJob) == "":
+            return jsonify({"error": "Invalid job or target job. Pick a valid job and target job"}), 400
+        else:
+            job = matchJob(db,job)
+            targetJob = matchJob(db,targetJob)
         users_ref = db.collection("users").document(uid)
         # This will create a new document with the given UID, or update it if it exists
 
         #would also need to call an imported function to calculate the career path accordingly
-        currentCareerPath = [job] + dummyCareerPath.copy() + [targetJob]
+        currentCareerPath = careerPathConstructor(db, job, targetJob)
+        print(currentCareerPath)
         users_ref.set({ "uid": uid,
                         "email": email,
                         "job" : job,
@@ -128,44 +137,70 @@ def create_account():
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
-@app.route("/upload-resume", methods = ["POST"])
+@app.route("/upload-resume", methods=["POST"])
 @verify_firebase_token
 def upload_resume():
-    uid = request.form.get("uid")
-    folderPath = 'temp'
-    print("UID RECEIVED: " + uid)
+    """
+    Upload a resume PDF (multipart/form-data, field name 'resume').
+    Uses the Firebase token's UID; does not trust a form 'uid'.
+    Writes only the 'resume' field (merge) without overwriting other user fields.
+    """
+    try:
+        # ------------------------------------------------------------------------------
+        # CHANGED: get uid from verified Firebase token (set in decorator)
+        # ------------------------------------------------------------------------------
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
 
-    # Create the folder if it doesn't exist
-    os.makedirs(folderPath, exist_ok=True)
-    if 'resume' not in request.files:
-        return jsonify({"error": "No file part"}), 400
-    file = request.files['resume']  # Access the uploaded file by name
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-    base64_image = pdf_page_to_base64(file)
-    resume_json = process_resume(base64_image)
-    doc_ref = db.collection("users").document(uid)
+        folderPath = "temp"
+        os.makedirs(folderPath, exist_ok=True)
 
-    unique_id = str(uuid.uuid4())
-    filename = f"resume_{unique_id}.json"
-    filepath = os.path.join(folderPath, filename)
-    with open(filepath, "w") as file:
-        json.dump(resume_json,file)
-    print(type(filepath))
+        # Validate multipart form + file
+        if "resume" not in request.files:
+            return jsonify({"error": "No file part 'resume'"}), 400
 
-    json_filepath_for_db = resumeProcessor.restructureJson(filepath)
-    with open(json_filepath_for_db, "r") as file:
-        json_data = json.load(file)
-        doc_ref.set({"resume": json_data}) 
+        file = request.files["resume"]
+        if file.filename == "":
+            return jsonify({"error": "No selected file"}), 400
 
-    returnResults = resumeProcessor.processResume(filepath)
-    
-    print(returnResults)
-    returnResultsJSON = {
-        "skillScore" : returnResults[0],
-        "feedback" : returnResults[1]
-    }
-    return returnResultsJSON, 200
+        # PDF -> base64 image(s) -> structured resume JSON
+        base64_image = pdf_page_to_base64(file)
+        resume_json = process_resume(base64_image)
+
+        # Parse to your schema
+        json_results = resumeProcessor.parseResponseData(resume_json)
+        print("\n[upload-resume] parsed resume results:")
+        print(json_results, type(json_results))
+
+        # Optional: persist raw resume JSON to disk
+        unique_id = str(uuid.uuid4())
+        filename = f"resume_{unique_id}.json"
+        filepath = os.path.join(folderPath, filename)
+        with open(filepath, "w") as f:
+            json.dump(resume_json, f)
+
+        doc_ref = db.collection("users").document(uid)
+        json_filepath_for_db = resumeProcessor.restructureJson(filepath)
+        with open(json_filepath_for_db, "r") as file:
+            json_data = json.load(file)
+            doc_ref.set({"resume": json_data}) 
+
+        # Run scoring pipeline
+        result_tuple = resumeProcessor.processResume(filepath)
+        # assuming processResume returns (skill_score, feedback)
+        skill_score, feedback = result_tuple if isinstance(result_tuple, (list, tuple)) else (None, None)
+
+        return jsonify({
+            "skillScore": skill_score,
+            "feedback": feedback
+        }), 200
+
+    except Exception as e:
+        # In production, log stacktrace with logging library
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
+
+
 
 
 if __name__ == '__main__':

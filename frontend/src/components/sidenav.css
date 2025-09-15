@@ -1,43 +1,77 @@
-/* sidebarNav.css */
+/* Sidebar hidden by default */
 .sidebar {
-  width: 250px;
+  width: 240px;
   height: 100vh;
   background-color: #2c3e50;
   color: #ecf0f1;
   padding: 30px 20px;
   position: fixed;
   top: 0;
-  left: 0;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  left: -240px; /* start hidden off-screen */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: left 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  left: 0; /* slide in when open */
 }
 
 .sidebar-links {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  margin-top: 40px;
 }
 
 .sidebar-links a {
+  display: block;
   color: #ecf0f1;
   text-decoration: none;
-  font-size: 1.2rem;
-  padding: 10px 15px;
-  border-radius: 5px;
+  font-size: 1rem;
+  padding: 12px 18px;
+  border-radius: 6px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .sidebar-links a:hover {
   background-color: #3498db;
-  color: white;
+  color: #fff;
 }
 
-/* Styling for active link */
 .active-link {
   background-color: #2980b9;
-  color: white;
+  color: #fff;
 }
 
-.sidebar-links a:focus,
-.sidebar-links a:active {
-  outline: none;
+/* Translucent Hamburger button */
+.sidebar-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(41, 128, 185, 0.6); /* translucent */
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1100; /* above sidebar */
+  backdrop-filter: blur(6px); /* frosted glass effect */
+  transition: background 0.3s ease, left 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(52, 152, 219, 0.8);
+}
+
+/* Shift main content when sidebar is open */
+.main-content {
+  margin-left: 0;
+  padding: 30px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.main-content.shift {
+  margin-left: 240px; /* same as sidebar width */
 }

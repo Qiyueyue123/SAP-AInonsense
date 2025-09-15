@@ -10,24 +10,7 @@ from firebase_admin import firestore, credentials
 from sklearn.metrics.pairwise import cosine_similarity
 import sys
 
-load_dotenv()
-rel_path = os.getenv("GEMENI_GOOGLE_CREDENTIALS")
 
-# Resolve it relative to THIS file's directory (agents folder)
-current_file_dir = os.path.dirname(os.path.abspath(__file__))  # agents folder
-project_root = os.path.join(current_file_dir, "..")  # backend folder
-key_path = os.path.abspath(os.path.join(project_root, rel_path))
-
-#FOR TESTING
-cred = credentials.Certificate(key_path)
-firebase_admin.initialize_app(cred, {
-    "projectId": os.getenv("FIREBASE_PROJECT_ID")
-})
-
-db = firestore.client()
-
-# Add the parent directory (backend/) to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from testScoring import ResumeProcessor
 
@@ -140,7 +123,7 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
     You are 'Aura', an expert career coach AI. Your primary job is to understand user intent based on the full context of their profile.
     
     HERE IS THE USER'S FULL PROFILE:
-    - Raw Resume Data: {json.dumps(user_profile.get('resumeJson'), indent=2)}
+    - Raw Resume Data: {json.dumps(user_profile.get('resume'), indent=2)}
     - Calculated Skill Scores (out of 20): {json.dumps(user_profile.get('skillScores'), indent=2)}
     - Target Goals: {json.dumps(user_profile.get('targetVector'), indent=2)}
 
@@ -183,10 +166,3 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
 
 
     
-while True:
-    prompt = input("PROMPT: ")
-    if prompt == "quit":
-        print("exited")
-        break
-    response = get_chatbot_response(prompt, "z6XyZQLnu9QjwhVAms39PhQSlqP2", db )
-    print(response)
