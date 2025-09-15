@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from agents.pdf_to_image import pdf_page_to_base64
 from agents.process_resume import process_resume
+from agents.career_coach import get_chatbot_response, retrieve_relevant_memory, retrieve_short_term_memory
 from testScoring import ResumeProcessor
 import uuid
 import json
@@ -169,6 +170,50 @@ def upload_resume():
 #     user_message = request.json.get('user_message')
 #     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
 #     user_profile = db.collection('users').document(user_id).get().to_dict()
+
+# @app.route('/chat', methods=['POST'])
+# def chat():
+#     user_message = request.json.get('user_message')
+#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
+#     user_profile = db.collection('users').document(user_id).get().to_dict()
+
+@app.route("/api/chat/history", methods=["GET"])
+@verify_firebase_token
+def get_chat_history():
+    """
+    Fetches the last 10 messages for the authenticated user.
+    This matches the endpoint the frontend is calling.
+    """
+    try:
+        user_id = request.user['uid']
+        chat_history = retrieve_short_term_memory(user_id, db)
+        return jsonify({"chatHistory": chat_history}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/chat", methods=["POST"])
+@verify_firebase_token
+def chat():
+    """
+    Receives a message from the user, gets a response from the AI,
+    and updates the chat history.
+    """
+    try:
+        user_id = request.user['uid']
+        data = request.json
+        user_message = data.get('message')
+
+        if not user_message:
+            return jsonify({"error": "No message provided"}), 400
+
+        # The get_chatbot_response function handles retrieving history and context
+        ai_response = get_chatbot_response(user_message, user_id, db)
+        
+        # The frontend expects a 'reply' key in the response
+        return jsonify({"reply": ai_response.get('content')}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
