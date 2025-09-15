@@ -8,6 +8,8 @@ const ResumeUpload = () => {
   const [file, setFile] = useState(null); 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const { user } = useAuth(); // Get the user from AuthContext
+  const { token, uid } = user; // Extract the token and uid from user object
 
   // Handle file selection
   const handleFileChange = (e) => {
@@ -27,6 +29,7 @@ const ResumeUpload = () => {
 
     const formData = new FormData();
     formData.append("resume", file); // "resume" is the key the backend expects
+    formData.append("uid",uid)
 
     setUploading(true);
     setUploadError("");
