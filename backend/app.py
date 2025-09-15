@@ -149,7 +149,7 @@ def upload_resume():
     print("\n important shit here")
     print(json_results)
     print(type(json_results))
-    doc_ref.update({"resume": json_results})
+    doc_ref.set({"resume": json_results})
     unique_id = str(uuid.uuid4())
     filename = f"resume_{unique_id}.json"
     filepath = os.path.join(folderPath, filename)
