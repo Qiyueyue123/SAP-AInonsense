@@ -195,17 +195,6 @@ def upload_resume():
         # In production, log stacktrace with logging library
         return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
-# @app.route('/chat', methods=['POST'])
-# def chat():
-#     user_message = request.json.get('user_message')
-#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
-#     user_profile = db.collection('users').document(user_id).get().to_dict()
-
-# @app.route('/chat', methods=['POST'])
-# def chat():
-#     user_message = request.json.get('user_message')
-#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
-#     user_profile = db.collection('users').document(user_id).get().to_dict()
 
 @app.route("/api/chat/history", methods=["GET"])
 @verify_firebase_token
@@ -244,6 +233,24 @@ def chat():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/resume-editor", methods=["get"])
+@verify_firebase_token
+def get_resume():
+    print("reached")
+    uid = request.args.get("uid")
+    print(uid)
+
+    user_ref = db.collection("users").document(uid)
+    doc = user_ref.get()
+
+    if doc.exists:
+        resume = doc.to_dict().get("resume")
+        print(resume)
+
+        return jsonify(resume), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 
 if __name__ == '__main__':

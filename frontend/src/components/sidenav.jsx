@@ -42,6 +42,12 @@ const SidebarNav = ({ children, title = "Career Coach" }) => {
             Resume Upload
           </NavLink>
           <NavLink
+            to="/resume-editor"
+            className={({ isActive }) => (isActive ? "active-link" : "")}
+          >
+            Resume Editor
+          </NavLink>
+          <NavLink
             to="/stats"
             className={({ isActive }) => (isActive ? "active-link" : "")}
           >

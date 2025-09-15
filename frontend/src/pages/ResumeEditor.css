@@ -1,0 +1,151 @@
+.resume-editor-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.resume-editor-main {
+  flex-grow: 1;
+  padding: 1rem 2rem;
+  background-color: #fafafa;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.error-message {
+  color: red;
+  margin: 20px 0;
+}
+
+.resume-section {
+  margin-bottom: 24px;
+  background-color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.section-header-large {
+  font-size: 1.8rem;
+  font-weight: 600;
+  width: 80%;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.resume-section-text {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 1.1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  width: 100%;
+  min-height: 180px;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.section-button-container {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.delete-section-button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.buttons-container {
+  margin-bottom: 1.5rem;
+}
+
+.add-section-button,
+.download-pdf-button {
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.add-section-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.download-pdf-button {
+  background-color: #28a745;
+  color: white;
+}
+
+/* Print styling to hide everything except the resume content */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #resume-to-pdf, #resume-to-pdf * {
+    visibility: visible;
+  }
+  #resume-to-pdf {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    font-family: Georgia, serif;
+    font-size: 12pt;
+    color: #000;
+  }
+  textarea, input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    white-space: pre-wrap !important;
+    resize: none !important;
+  }
+  button {
+    display: none !important;
+  }
+  
+  /* Hide outlines/borders of sections */
+  .resume-section {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* Hide all buttons, including delete buttons */
+  button, .section-button-container {
+    display: none !important;
+  }
+
+  /* Remove input and textarea borders, backgrounds */
+  textarea, input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    resize: none !important;
+    pointer-events: none !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    white-space: pre-wrap !important;
+  }
+}
