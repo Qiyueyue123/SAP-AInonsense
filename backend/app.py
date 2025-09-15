@@ -157,6 +157,12 @@ def upload_resume():
     }
     return returnResultsJSON, 200
 
+# @app.route('/chat', methods=['POST'])
+# def chat():
+#     user_message = request.json.get('user_message')
+#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
+#     user_profile = db.collection('users').document(user_id).get().to_dict()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
