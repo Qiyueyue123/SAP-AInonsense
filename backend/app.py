@@ -8,6 +8,7 @@ from agents.pdf_to_image import pdf_page_to_base64
 from agents.process_resume import process_resume
 from agents.career_coach import get_chatbot_response, retrieve_relevant_memory, retrieve_short_term_memory
 from testScoring import ResumeProcessor
+from validCareerChecker import matchJob
 import uuid
 import json
 # would need to import a function to calculate the targetJobSkillScore based on target job
@@ -107,7 +108,9 @@ def create_account():
         targetJob = data.get("targetJob")
         # You would run the imported function to calculate score for target job here. Then the mentorScore and courseScore should be the same value.
         if not(email and uid and job and targetJob):
-            return jsonify({"error": "Missing required fields: email or uid or job or targetJob"}), 400
+            return jsonify({"error": "Missing required fields: email or uid or job or target job"}), 400
+        if matchJob(db,job) == "" or matchJob(db,targetJob) == "":
+            return jsonify({"error": "Invalid job or target job. Pick a valid job and target job"}), 400
         users_ref = db.collection("users").document(uid)
         # This will create a new document with the given UID, or update it if it exists
 

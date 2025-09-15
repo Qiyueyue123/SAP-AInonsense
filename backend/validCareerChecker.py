@@ -5,21 +5,13 @@ import os
 import json
 from dotenv import load_dotenv
 
-load_dotenv()
-key_path = os.getenv("FIREBASE_GOOGLE_CREDENTIALS")
-cred = credentials.Certificate(key_path)
-firebase_admin.initialize_app(cred, {
-    "projectId": os.getenv("FIREBASE_PROJECT_ID")
-})
-
-db = firestore.client()
 model = SentenceTransformer('all-MiniLM-L6-v2')
 def similarityScore(model,text, keyword):
         return util.cos_sim(
             model.encode(text),
             model.encode(keyword)
         )[0][0].item()
-def matchJob(input_job_title, threshold=0.75):
+def matchJob(db, input_job_title, threshold=0.75):
     listOfPossibleJobs = []
     
 
@@ -40,5 +32,3 @@ def matchJob(input_job_title, threshold=0.75):
     
     return listOfPossibleJobs[0][0]
     
-    
-print(matchJob("african"))
