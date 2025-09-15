@@ -195,6 +195,17 @@ def upload_resume():
         # In production, log stacktrace with logging library
         return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
+# @app.route('/chat', methods=['POST'])
+# def chat():
+#     user_message = request.json.get('user_message')
+#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
+#     user_profile = db.collection('users').document(user_id).get().to_dict()
+
+# @app.route('/chat', methods=['POST'])
+# def chat():
+#     user_message = request.json.get('user_message')
+#     user_id = request.json.get('user_id')  # Assume user_id is sent with each request
+#     user_profile = db.collection('users').document(user_id).get().to_dict()
 
 @app.route("/api/chat/history", methods=["GET"])
 @verify_firebase_token
@@ -233,24 +244,50 @@ def chat():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
-@app.route("/resume-editor", methods=["get"])
+
+@app.route("/resume-editor", methods=["GET"])
 @verify_firebase_token
 def get_resume():
-    print("reached")
     uid = request.args.get("uid")
-    print(uid)
-
     user_ref = db.collection("users").document(uid)
     doc = user_ref.get()
-
     if doc.exists:
         resume = doc.to_dict().get("resume")
-        print(resume)
-
         return jsonify(resume), 200
     else:
         return jsonify({"error": "User not found"}), 404
+
+
+@app.route("/resume-editor/update", methods=["POST"])
+@verify_firebase_token
+def update_resume():
+    try:
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        data = request.get_json()
+        updated_resume = data.get("resume")
+        if updated_resume is None:
+            return jsonify({"error": "No resume data provided"}), 400
+
+        user_ref = db.collection("users").document(uid)
+        user_ref.set({"resume": updated_resume}, merge=True)
+
+        return jsonify({"message": "Resume updated successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to update resume: {str(e)}"}), 500
+
+@app.before_request
+def before_request_func():
+    if request.method == 'OPTIONS':
+        resp = app.make_response('')
+        resp.status_code = 200
+        resp.headers["Access-Control-Allow-Origin"] = os.getenv("FRONTEND_ORIGIN", "*")
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return resp
 
 
 if __name__ == '__main__':
