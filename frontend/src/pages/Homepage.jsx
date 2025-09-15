@@ -1,5 +1,6 @@
 import { useAuth } from "../AuthContext";
-import SidebarNav from "../components/sidenav"; 
+import SidebarNav from "../components/sidenav";
+import "./Homepage.css"; 
 
 export default function Homepage() {
   const { logout, user } = useAuth();
@@ -9,12 +10,8 @@ export default function Homepage() {
       <SidebarNav />
       <div className="auth-card">
         <h2>Welcome {user?.email || "user"}!</h2>
-
         <p>You are now in the protected homepage.</p>
-
-        <button onClick={logout} style={{ marginTop: "1rem" }}>
-          Logout
-        </button>
+        <button onClick={logout}>Logout</button>
       </div>
     </div>
   );

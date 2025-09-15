@@ -246,5 +246,28 @@ def chat():
         return jsonify({"error": str(e)}), 500
 
 
+
+@app.route("/stats", methods=["GET"])
+@verify_firebase_token
+def get_stats():
+    # Prefer UID from verified token; fallback to ?uid=...
+    uid = getattr(request, "user", {}).get("uid") or request.args.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid"}), 400
+
+    snap = db.collection("users").document(uid).get()
+    if not snap.exists:
+        return jsonify({"error": "User not found"}), 404
+
+    d = snap.to_dict() or {}
+    return jsonify({
+        "courses": d.get("course_rec", []),
+        "mentors": d.get("mentors") or d.get("mentor", []),
+        "careerPath": d.get("careerPath", []),
+        "skillScore": d.get("skillScore", {})  # 👈 NEW
+    }), 200
+
+    
+
 if __name__ == '__main__':
     app.run(debug=True)
