@@ -1,0 +1,84 @@
+/* Page container: centers the card */
+.page-center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* keep content readable even on very wide screens */
+  box-sizing: border-box;
+}
+
+/* The welcome card */
+.auth-card {
+  width: min(680px, 92vw);
+  background: rgba(255, 255, 255, 0.06);          /* glassy look for dark themes */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  animation: floatIn 300ms ease-out;
+}
+
+/* Headline with subtle gradient */
+.auth-card h2 {
+  margin: 0 0 8px;
+  font-weight: 800;
+  line-height: 1.15;
+  font-size: clamp(1.6rem, 2.2vw + 1rem, 2.6rem);
+  background: linear-gradient(90deg, #60a5fa, #38bdf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Body text */
+.auth-card p {
+  margin: 4px 0 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.05rem;
+}
+
+/* Logout button (clean + hover) */
+.auth-card button {
+  all: unset;
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-card button:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: rgba(99, 102, 241, 0.55);
+  transform: translateY(-1px);
+}
+
+.auth-card button:active {
+  transform: translateY(0);
+}
+
+/* Small screens: keep generous padding */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 22px 20px;
+  }
+}
+
+/* Subtle entrance animation */
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
