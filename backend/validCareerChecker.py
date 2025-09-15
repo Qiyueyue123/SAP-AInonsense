@@ -11,7 +11,7 @@ def similarityScore(model,text, keyword):
             model.encode(text),
             model.encode(keyword)
         )[0][0].item()
-def matchJob(db, input_job_title, threshold=0.75):
+def matchJob(db, input_job_title, threshold=0.55):
     listOfPossibleJobs = []
     
 
