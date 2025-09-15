@@ -131,6 +131,7 @@ def create_account():
 @app.route("/upload-resume", methods = ["POST"])
 @verify_firebase_token
 def upload_resume():
+    uid = request.form.get("uid")
     folderPath = 'temp'
 
     # Create the folder if it doesn't exist
@@ -142,7 +143,12 @@ def upload_resume():
         return jsonify({"error": "No selected file"}), 400
     base64_image = pdf_page_to_base64(file)
     resume_json = process_resume(base64_image)
-    resume_json = resume_json
+    doc_ref = db.collection("users").document(uid)
+    json_results = resumeProcessor.parseResponseData(resume_json)
+    print("\n important shit here")
+    print(json_results)
+    print(type(json_results))
+    doc_ref.update({"resume": json_results})
     unique_id = str(uuid.uuid4())
     filename = f"resume_{unique_id}.json"
     filepath = os.path.join(folderPath, filename)
@@ -150,6 +156,7 @@ def upload_resume():
         json.dump(resume_json,file)
     print(type(filepath))
     returnResults = resumeProcessor.processResume(filepath)
+    
     print(returnResults)
     returnResultsJSON = {
         "skillScore" : returnResults[0],
