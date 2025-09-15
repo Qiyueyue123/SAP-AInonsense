@@ -38,8 +38,7 @@ def setterCourseScore(uid, modifierVector):
 
 def main():
     test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"
-    print(getterCourseScore(test_uid))
-    print(setterCourseScore(test_uid,{'Problem Solving': -1, 'Automation/Scripting': -1}))
+    
 
 
 if __name__ == "__main__":
