@@ -7,32 +7,20 @@ import re
 
 load_dotenv()
 
-def extract_json_from_string(text):
-    """
-    Finds and parses the first valid JSON object from a string,
-    handling markdown code fences.
-    """
-    match = re.search(r'```json\s*(\{[\s\S]*?\})\s*```|(\{[\s\S]*\})', text)
-    if match:
-        json_str = match.group(1) if match.group(1) else match.group(2)
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError:
-            print("⚠️ Warning: Found a JSON-like string but failed to parse.")
-            return None
-    return None
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GEMENI_GOOGLE_CREDENTIALS")
 
 def process_resume(base64_image):
     print('process resume reached')
-    model = init_chat_model("gemini-1.5-flash", model_provider="google_genai", temperature=0)
+    model = init_chat_model("gemini-2.5-flash", model_provider="google_genai", temperature=0)
 
-    # --- THIS PROMPT IS NOW MORE PRECISE ---
     query = """
-    Analyze the resume image. Your task is to return a single, valid JSON object.
-    The keys of this object MUST be one of the following exact strings: "education", "jobs_internships", "courses", "competitions", "projects".
-    The value for each key must be a list of JSON objects, where each object has "name", "date", and "description" keys.
-    If a section does not exist in the resume, omit its key entirely from the final object.
-    IMPORTANT: Your entire output must be ONLY the JSON object, with no extra text or markdown formatting.
+    Please analyze the resume image and split it into its respective sections. For each section, return the following:
+    1. A header (the title of the section).
+    2. Content or a list of entries within that section (like job titles, university names, skills, etc.).
+    Ensure that the result is dynamic, meaning that if a section does not exist in the resume (like 'Hobbies' or 'Projects'), it is simply omitted.
+    The output should be a JSON dictionary where each section contains:
+    - "header": the section's title.
+    - "content": the content within that section (this could be a list of strings or more detailed information depending on the section).
     """
     message = HumanMessage(
         content=[
@@ -43,25 +31,51 @@ def process_resume(base64_image):
             },
         ],
     )
+    response = model.invoke([message])
+
+    # Get the response content
+    if hasattr(response, 'structured_output'):
+        response_data = response.structured_output
+    else:
+        response_data = response.content
     
-    try:
-        print("...Calling Gemini model to analyze resume...")
-        response = model.invoke([message])
-        raw_content = response.content
-        print("✅ Gemini model call successful.")
-        
-        parsed_json = extract_json_from_string(raw_content)
-        
-        if not parsed_json or not isinstance(parsed_json, dict):
-            print(f"❌ ERROR: Could not extract a valid JSON dictionary from Gemini's response. Got: {raw_content}")
-            return {"error": "Failed to parse the AI model's response into the required dictionary format."}
-        
-        response_data = parsed_json
-
-    except Exception as e:
-        print(f"❌ ERROR during Gemini model invocation: {e}")
-        response_data = {"error": f"AI model failed to process the resume: {e}"}
-
-    print('process resume ended')
-    return response_data
-
+    print(f"Raw response: {response_data}")
+    print(f"Response type: {type(response_data)}")
+    
+    # If response_data is already a dict, return it
+    if isinstance(response_data, dict):
+        print('process resume ended - already dict')
+        return response_data
+    
+    # If it's a string, try to parse it as JSON
+    if isinstance(response_data, str):
+        try:
+            # Remove potential markdown code blocks
+            cleaned_response = response_data.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = re.sub(r'^```json\s*', '', cleaned_response)
+            if cleaned_response.endswith('```'):
+                cleaned_response = re.sub(r'\s*```$', '', cleaned_response)
+            
+            # Parse the JSON
+            parsed_json = json.loads(cleaned_response)
+            print('process resume ended - parsed from string')
+            return parsed_json
+            
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error: {e}")
+            print(f"Problematic content: {response_data}")
+            
+            # Fallback: return a structured error response
+            return {
+                "error": "Failed to parse resume",
+                "raw_response": str(response_data)[:500]  # Truncate for safety
+            }
+    
+    # If it's neither dict nor string, return error
+    print('process resume ended - unexpected type')
+    return {
+        "error": "Unexpected response type",
+        "response_type": str(type(response_data)),
+        "raw_response": str(response_data)[:500]
+    }

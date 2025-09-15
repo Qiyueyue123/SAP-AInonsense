@@ -19,6 +19,8 @@ export default function CreateAccount() {
     const email = e.target.email.value.trim();
     const password = e.target.password.value;
     const confirm = e.target.confirm.value;
+    const job = e.target.job.value;
+    const targetJob = e.target.targetJob.value;
 
     if (password !== confirm) {
       setError("Passwords do not match.");
@@ -33,8 +35,11 @@ export default function CreateAccount() {
       login(idToken, { email: cred.user.email, uid: cred.user.uid });
       const stuff = {
         email: cred.user.email,
-        uid: cred.user.uid
+        uid: cred.user.uid,
+        job: job,
+        targetJob : targetJob
       }
+
       const response = await api.post("/create-account", stuff)
 
       if (response.status === 200) {
@@ -72,6 +77,12 @@ export default function CreateAccount() {
 
           <label>Confirm Password</label>
           <input name="confirm" type="password" autoComplete="new-password" required />
+
+          <label>Current Job</label>
+          <input name="job" type="text" autoComplete="organization-title" required />
+
+          <label>Target Job</label>
+          <input name="targetJob" type="text" autoComplete="organization-title" required />
 
           {error && <p className="error">{error}</p>}
 

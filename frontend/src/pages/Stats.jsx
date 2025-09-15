@@ -1,5 +1,6 @@
 import React from "react";
 import Chatbot from '../components/Chatbot';
+import SidebarNav from "../components/sidenav"; 
 
 export default function Stats({
   strengths = [],
@@ -10,11 +11,12 @@ export default function Stats({
   chatbot = null
 }) {
   return (
+    
     <div style={{
         width: "100%",
         padding: "2rem",
         boxSizing: "border-box"
-    }}>
+    }}><SidebarNav />
       {/* Top section: Stats/Feedback/Strengths & Weaknesses */}
       <div style={{
         background: "#f7f7f7",
