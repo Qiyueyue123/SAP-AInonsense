@@ -9,6 +9,8 @@ const SidebarNav = () => {
         <NavLink to="/homepage" className={({ isActive }) => (isActive ? "active-link" : "")}>Home</NavLink>
         <NavLink to="/resume-upload" className={({ isActive }) => (isActive ? "active-link" : "")}>Resume Upload</NavLink>
         <NavLink to="/stats" className={({ isActive }) => (isActive ? "active-link" : "")}>Stats</NavLink>
+        <NavLink to="/career-path" className={({ isActive }) => (isActive ? "active-link" : "")}>Career Path</NavLink>
+
       </nav>
     </aside>
   );

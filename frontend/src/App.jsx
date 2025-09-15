@@ -6,6 +6,7 @@ import CreateAccount from "./pages/CreateAccount";
 import Homepage from "./pages/Homepage";
 import ResumeUpload from "./pages/ResumeUpload";
 import Stats from "./pages/Stats"
+import CareerPath from "./pages/CareerPath"
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/homepage" element={<Homepage />} />
             <Route path="/resume-upload" element={<ResumeUpload />} />
             <Route path="/stats" element={<Stats />} />
+            <Route path="/career-path" element={<CareerPath />} />
           </Route>
         </Routes>
       </AuthProvider>
