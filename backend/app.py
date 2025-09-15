@@ -45,7 +45,6 @@ dummyCareerPath = [
     "Tech Lead",
 ]
 
-
 resumeProcessor = ResumeProcessor()
 #silly config nonsense
 load_dotenv()
@@ -64,6 +63,7 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN", "*")
 print("CORS frontend origin:", frontend_origin)
 
 CORS(app, resources={r"/*": {"origins": os.getenv("FRONTEND_ORIGIN", "*")}})
+
 
 @app.after_request
 def after_request(response):
