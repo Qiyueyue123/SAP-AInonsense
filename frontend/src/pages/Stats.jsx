@@ -109,7 +109,7 @@ export default function Stats() {
         ))}
       </ul>
 
-      {courses.length > 3 && (
+      {courses && courses.length > 3 && (
         <button
           type="button"
           className="view-toggle"
@@ -130,7 +130,7 @@ export default function Stats() {
         ))}
       </ul>
 
-      {mentors.length > 3 && (
+      {mentors && mentors.length > 3 && (
         <button
           type="button"
           className="view-toggle"
