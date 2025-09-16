@@ -1,3 +1,78 @@
+/* --- layout for the 3 columns --- */
+.stats-main {
+  display: grid;
+  grid-template-columns: 1.2fr 1.6fr 1fr; /* left | CHATBOT | right */
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+/* unified “panel” look used by all three columns */
+.panel {
+  background: #f7f7f7;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ececec;
+}
+
+/* left: recommendations */
+.panel--list h3 {
+  margin: 0 0 0.75rem;
+}
+.panel--list strong {
+  display: block;
+  margin-top: 0.5rem;
+}
+.panel--list ul {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.1rem;
+}
+.view-toggle {
+  background: none;
+  border: none;
+  color: #0b5fff;
+  padding: 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* middle: chatbot */
+.panel--chatbot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* centers the header and content */
+  justify-content: flex-start;
+  min-height: 520px;
+  min-width: 0;        /* allow grid to shrink nicely */
+}
+.panel--chatbot h4 {
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+/* ensure Chatbot can grow inside the panel */
+.panel--chatbot > div {
+  width: 100%;
+}
+
+/* right: career path */
+.panel--career h4 {
+  margin-top: 0;
+}
+
+/* responsive: stack on small screens */
+@media (max-width: 1024px) {
+  .stats-main {
+    grid-template-columns: 1fr;
+  }
+  .panel--chatbot {
+    min-height: 480px;
+  }
+}
+
+
+
 .stats-container {
   width: 100%;
   padding: 2rem;
@@ -137,4 +212,79 @@
 
 @media (max-width: 768px) {
   .skill-chip { min-width: 140px; }
+}
+
+
+/* ==== Career Path (Stats page) – pill/step look ==== */
+.panel--career,
+.career-path-section {
+  text-align: center;
+  padding: 1.25rem;
+}
+
+.panel--career ul,
+.career-path-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Base step style (applies to every <li>) */
+.panel--career li,
+.career-path-section li {
+  background: #b69510;           /* default: intermediate color */
+  color: #1f1f22;
+  border-radius: 12px;
+  padding: 18px 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Step title (injected) */
+.panel--career li::before,
+.career-path-section li::before {
+  display: block;
+  font-weight: 800;
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+  content: "Step";
+}
+
+/* First and last get special colors + titles like your reference */
+.panel--career li:first-child,
+.career-path-section li:first-child {
+  background: #0f7378;            /* current */
+}
+.panel--career li:first-child::before,
+.career-path-section li:first-child::before {
+  content: "Current Position";
+}
+
+.panel--career li:last-child,
+.career-path-section li:last-child {
+  background: #c0611d;            /* final */
+}
+.panel--career li:last-child::before,
+.career-path-section li:last-child::before {
+  content: "Final Goal Position";
+}
+
+/* Optional: explicit labels for 2nd–4th items as “Intermediate Position N” */
+.panel--career li:nth-child(2)::before,
+.career-path-section li:nth-child(2)::before { content: "Intermediate Position 1"; }
+.panel--career li:nth-child(3)::before,
+.career-path-section li:nth-child(3)::before { content: "Intermediate Position 2"; }
+.panel--career li:nth-child(4)::before,
+.career-path-section li:nth-child(4)::before { content: "Intermediate Position 3"; }
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  .panel--career ul,
+  .career-path-section ul {
+    gap: 16px;
+  }
 }
