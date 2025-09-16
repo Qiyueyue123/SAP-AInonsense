@@ -14,7 +14,6 @@ firebase_admin.initialize_app(cred, {
 db = firestore.client()
 
 
-
 def get_user_data(uid):
     userRef = db.collection('users').document(uid)
     userDoc = userRef.get().to_dict()
