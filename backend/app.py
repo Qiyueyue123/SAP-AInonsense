@@ -12,6 +12,8 @@ from validCareerChecker import matchJob
 from careerPathConstructor import careerPathConstructor
 import uuid
 import json
+from agents.edit_resume import edit_resume
+from dotenv import load_dotenv
 # would need to import a function to calculate the targetJobSkillScore based on target job
 
 skillScore = {
@@ -316,6 +318,36 @@ def get_stats():
         "skillScore": d.get("skillScore", {})  # 👈 NEW
     }), 200
 
+@app.route("/resume-editor/paraphrase", methods=["POST"])
+@verify_firebase_token
+def paraphrase_section():
+    try:
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        data = request.get_json()
+        header = data.get("header")
+        content = data.get("content")
+        text_to_rephrase = data.get("text_to_rephrase")
+
+        if not header or not content or not text_to_rephrase:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Log input for debugging (optional)
+        print(f"Paraphrasing section '{header}' for user {uid}")
+        print(f"Original text to rephrase: {text_to_rephrase}")
+
+        paraphrased_text = edit_resume(header, content, mode=1, text_rephrase=text_to_rephrase)
+
+        # Log paraphrased output (optional)
+        print(f"Paraphrased text: {paraphrased_text}")
+
+        return jsonify({"paraphrased_text": paraphrased_text}), 200
+
+    except Exception as e:
+        print(f"Paraphrase error: {e}", flush=True)
+        return jsonify({"error": f"Failed paraphrase: {str(e)}"}), 500
     
 
 if __name__ == '__main__':

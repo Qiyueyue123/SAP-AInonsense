@@ -4,6 +4,25 @@ import "./ResumeEditor.css";
 import api from '../axios.js';
 import { useAuth } from "../AuthContext";
 
+// Helper to get selected text inside a textarea by its id
+function getSelectedText(textareaId) {
+  const textarea = document.getElementById(textareaId);
+  if (!textarea) return "";
+  return textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+}
+
+// Helper to replace selected text inside textarea content and update state
+function replaceSelectedText(text, textareaId, newText, updateValueCallback) {
+  const textarea = document.getElementById(textareaId);
+  if (!textarea) return;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const before = text.substring(0, start);
+  const after = text.substring(end);
+  const updated = before + newText + after;
+  updateValueCallback(updated);
+}
+
 function ResumeEditor() {
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,14 +99,40 @@ function ResumeEditor() {
     const updatedJSON = parseEditedContentToJSON(editableContent);
     console.log("Saving to backend:", updatedJSON);
     try {
-      // Adjust API path and method as needed
-      await api.post("/resume-editor/update", { uid, resume: updatedJSON });
+      await api.post("/resume-editor/update", { resume: updatedJSON }); // no uid, backend reads from token
       setResume(updatedJSON);
       setIsEditing(false);
       alert("Resume saved successfully.");
     } catch (err) {
       console.error("Failed to save resume:", err);
       alert("Failed to save resume. Please try again.");
+    }
+  };
+
+  // On paraphrase button click per section
+  const handleParaphrase = async (sectionKey, textareaId) => {
+    const selectedText = getSelectedText(textareaId);
+    if (!selectedText) {
+      alert("Please select text to paraphrase.");
+      return;
+    }
+    try {
+      const res = await api.post("/resume-editor/paraphrase", {
+        header: sectionKey,
+        content: editableContent[sectionKey],
+        text_to_rephrase: selectedText,
+      });
+      const paraphrased = res.data.paraphrased_text;
+      if (paraphrased) {
+        replaceSelectedText(editableContent[sectionKey], textareaId, paraphrased, (updated) =>
+          handleChange(sectionKey, updated)
+        );
+      } else {
+        alert("No paraphrased text returned.");
+      }
+    } catch (err) {
+      console.error("Paraphrase failed:", err);
+      alert("Failed to paraphrase text.");
     }
   };
 
@@ -105,37 +150,67 @@ function ResumeEditor() {
             {isEditing ? "Cancel" : "Edit"}
           </button>
           {isEditing && (
-            <button onClick={handleSave} className="save-button">
-              Save
-            </button>
+            <>
+              <button onClick={handleSave} className="save-button">
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  // Loop through all sections to find first selected text and paraphrase it globally
+                  for (const [sectionKey] of Object.entries(editableContent)) {
+                    const textareaId = `textarea-${sectionKey}`;
+                    const selectedText = getSelectedText(textareaId);
+                    if (selectedText) {
+                      handleParaphrase(sectionKey, textareaId);
+                      return;
+                    }
+                  }
+                  alert("Please select text inside any section to paraphrase.");
+                }}
+                className="paraphrase-global-button"
+                style={{ marginLeft: "10px" }}
+              >
+                Paraphrase Selected Text (Global)
+              </button>
+            </>
           )}
         </div>
 
         <div id="resume-content-area" style={{ whiteSpace: "pre-wrap" }}>
-          {Object.entries(editableContent).map(([sectionKey, text]) => (
-            <section key={sectionKey} style={{ marginBottom: "2rem" }}>
-              <h2>{sectionKey.replace(/_/g, " ").toUpperCase()}</h2>
-              {isEditing ? (
-                <textarea
-                  value={text}
-                  onChange={(e) => handleChange(sectionKey, e.target.value)}
-                  style={{
-                    width: "100%",
-                    minHeight: "8rem",
-                    fontFamily: "monospace",
-                    fontSize: "1rem",
-                    padding: "1rem",
-                    borderRadius: "6px",
-                    border: "1px solid #ccc",
-                  }}
-                />
-              ) : (
-                <pre style={{ whiteSpace: "pre-wrap", fontSize: "1.1rem" }}>
-                  {text}
-                </pre>
-              )}
-            </section>
-          ))}
+          {Object.entries(editableContent).map(([sectionKey, text]) => {
+            const textareaId = `textarea-${sectionKey}`;
+            return (
+              <section key={sectionKey} style={{ marginBottom: "2rem" }}>
+                <h2>{sectionKey.replace(/_/g, " ").toUpperCase()}</h2>
+                {isEditing ? (
+                  <>
+                    <textarea
+                      id={textareaId}
+                      value={text}
+                      onChange={(e) => handleChange(sectionKey, e.target.value)}
+                      style={{
+                        width: "100%",
+                        minHeight: "8rem",
+                        fontFamily: "monospace",
+                        fontSize: "1rem",
+                        padding: "1rem",
+                        borderRadius: "6px",
+                        border: "1px solid #ccc",
+                      }}
+                    />
+                    <button
+                      onClick={() => handleParaphrase(sectionKey, textareaId)}
+                      style={{ marginTop: "0.5rem" }}
+                    >
+                      Paraphrase Selected
+                    </button>
+                  </>
+                ) : (
+                  <pre style={{ whiteSpace: "pre-wrap", fontSize: "1.1rem" }}>{text}</pre>
+                )}
+              </section>
+            );
+          })}
         </div>
       </main>
     </div>

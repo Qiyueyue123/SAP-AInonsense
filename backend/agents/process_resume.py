@@ -5,13 +5,24 @@ import os
 import json
 import re
 
+# Load environment variables
 load_dotenv()
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GEMENI_GOOGLE_CREDENTIALS")
+# Get Gemini API key from .env
+gemini_key = os.getenv("GEMINI_API_KEY")
+if not gemini_key:
+    raise ValueError("GEMINI_API_KEY not set in environment")
 
 def process_resume(base64_image):
     print('process resume reached')
-    model = init_chat_model("gemini-2.5-flash", model_provider="google_genai", temperature=0)
+
+    # Initialize Gemini model with explicit API key
+    model = init_chat_model(
+        "gemini-2.5-flash",
+        model_provider="google_genai",
+        temperature=0,
+        api_key=gemini_key
+    )
 
     query = """
     Please analyze the resume image and split it into its respective sections. For each section, return the following:
@@ -22,6 +33,7 @@ def process_resume(base64_image):
     - "header": the section's title.
     - "content": the content within that section (this could be a list of strings or more detailed information depending on the section).
     """
+
     message = HumanMessage(
         content=[
             {"type": "text", "text": query},
@@ -31,12 +43,9 @@ def process_resume(base64_image):
             },
         ],
     )
+
     response = model.invoke([message])
     response_data = response.content
-    
-    # print(f"Raw response: {response_data}")
-    # print(f"Response type: {type(response_data)}")
-    return response_data
 
-    
-   
+    print('process resume ended')
+    return response_data
