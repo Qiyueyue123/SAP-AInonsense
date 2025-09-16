@@ -17,8 +17,9 @@ export default function Stats() {
   const [skillScore, setSkillScore] = useState({});
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [showAllMentors, setShowAllMentors] = useState(false);
-  const visibleCourses = showAllCourses ? courses : courses.slice(0, 3);
-  const visibleMentors = showAllMentors ? mentors : mentors.slice(0, 3);
+  console.log(courses,mentors)
+  const visibleCourses = showAllCourses ? courses : (courses == [] || !courses ? []: courses.slice(0, 3));
+  const visibleMentors = showAllMentors ? mentors : (mentors == [] || !mentors ? []: mentors.slice(0, 3));
 
   // Helper to convert score -> percent (assume 0–20 scale; tweak if different)
   const toPct = (v) => {
@@ -104,7 +105,7 @@ export default function Stats() {
             ))}
           </ul>
 
-          {courses.length > 3 && (
+          {courses && courses.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllCourses((v) => !v)}
@@ -124,7 +125,7 @@ export default function Stats() {
             ))}
           </ul>
 
-          {mentors.length > 3 && (
+          {mentors && mentors.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllMentors((v) => !v)}
