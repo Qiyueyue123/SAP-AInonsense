@@ -1,7 +1,17 @@
 import os
 from dotenv import load_dotenv
+import firebase_admin
+from firebase_admin import auth as fb_auth, credentials, firestore
+#silly config nonsense
+load_dotenv()
 
+key_path = os.getenv("FIREBASE_GOOGLE_CREDENTIALS")
+cred = credentials.Certificate(key_path)
+firebase_admin.initialize_app(cred, {
+    "projectId": os.getenv("FIREBASE_PROJECT_ID")
+})
 
+db = firestore.client()
 
 
 def get_user_data(db,uid):

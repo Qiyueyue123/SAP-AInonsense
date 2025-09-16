@@ -12,6 +12,8 @@ from validCareerChecker import matchJob
 from careerPathConstructor import careerPathConstructor
 import uuid
 import json
+from agents.edit_resume import edit_resume
+from dotenv import load_dotenv
 # would need to import a function to calculate the targetJobSkillScore based on target job
 
 skillScore = {
@@ -243,6 +245,50 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/resume-editor", methods=["GET"])
+@verify_firebase_token
+def get_resume():
+    uid = request.args.get("uid")
+    user_ref = db.collection("users").document(uid)
+    doc = user_ref.get()
+    if doc.exists:
+        resume = doc.to_dict().get("resume")
+        return jsonify(resume), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+
+@app.route("/resume-editor/update", methods=["POST"])
+@verify_firebase_token
+def update_resume():
+    try:
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        data = request.get_json()
+        updated_resume = data.get("resume")
+        if updated_resume is None:
+            return jsonify({"error": "No resume data provided"}), 400
+
+        user_ref = db.collection("users").document(uid)
+        user_ref.set({"resume": updated_resume}, merge=True)
+
+        return jsonify({"message": "Resume updated successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to update resume: {str(e)}"}), 500
+
+@app.before_request
+def before_request_func():
+    if request.method == 'OPTIONS':
+        resp = app.make_response('')
+        resp.status_code = 200
+        resp.headers["Access-Control-Allow-Origin"] = os.getenv("FRONTEND_ORIGIN", "*")
+        resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return resp
+
 
 
 @app.route("/stats", methods=["GET"])
@@ -322,6 +368,37 @@ def get_stats():
     except Exception as e:
         print(f"[ERROR /stats]: {str(e)}")
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+@app.route("/resume-editor/paraphrase", methods=["POST"])
+@verify_firebase_token
+def paraphrase_section():
+    try:
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        data = request.get_json()
+        header = data.get("header")
+        content = data.get("content")
+        text_to_rephrase = data.get("text_to_rephrase")
+
+        if not header or not content or not text_to_rephrase:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Log input for debugging (optional)
+        print(f"Paraphrasing section '{header}' for user {uid}")
+        print(f"Original text to rephrase: {text_to_rephrase}")
+
+        paraphrased_text = edit_resume(header, content, mode=1, text_rephrase=text_to_rephrase)
+
+        # Log paraphrased output (optional)
+        print(f"Paraphrased text: {paraphrased_text}")
+
+        return jsonify({"paraphrased_text": paraphrased_text}), 200
+
+    except Exception as e:
+        print(f"Paraphrase error: {e}", flush=True)
+        return jsonify({"error": f"Failed paraphrase: {str(e)}"}), 500
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

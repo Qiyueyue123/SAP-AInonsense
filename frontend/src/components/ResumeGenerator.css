@@ -1,0 +1,200 @@
+/* ResumeGenerator.css */
+
+.resume-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.error {
+  color: #dc2626;
+  text-align: center;
+  padding: 2rem;
+  font-weight: 500;
+}
+
+.resume-section {
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 2rem;
+}
+
+.resume-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.section-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  color: #111827;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 0.5rem;
+}
+
+.section-content {
+  margin-left: 0;
+}
+
+.content-item {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  border-left: 3px solid #3b82f6;
+}
+
+.content-item:last-child {
+  margin-bottom: 0;
+}
+
+.object-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.object-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field-label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.field-content {
+  margin-left: 1rem;
+}
+
+.field-value {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.title-field {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.title-value {
+  font-weight: 600;
+  color: #111827;
+  font-size: 1rem;
+}
+
+.date-field {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.date-value {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.nested-object {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  margin-top: 0.5rem;
+}
+
+.bullet-list {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.bullet-list li {
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.simple-list {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
+
+.simple-list li {
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+}
+
+.comma-separated {
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.text-content {
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .resume-container {
+    padding: 1rem;
+    max-width: 100%;
+  }
+  
+  .section-header {
+    font-size: 1.1rem;
+  }
+  
+  .content-item {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .field-content {
+    margin-left: 0.5rem;
+  }
+  
+  .title-field,
+  .date-field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .resume-container {
+    max-width: none;
+    padding: 0;
+    box-shadow: none;
+  }
+  
+  .resume-section {
+    page-break-inside: avoid;
+  }
+  
+  .content-item {
+    background: white !important;
+    border: 1px solid #ccc;
+  }
+}

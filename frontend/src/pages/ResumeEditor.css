@@ -1,0 +1,108 @@
+/* Resume Viewer / Editor Styling */
+
+.resume-editor-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f7f9fa;
+  color: #2c3e50;
+}
+
+.resume-editor-main {
+  margin-left: 270px; /* To allow space for Sidenav */
+  padding: 40px;
+  max-width: 100%;
+  flex-grow: 1;
+  border-radius: 8px;
+}
+
+h1,
+h2 {
+  font-size: 2.5rem;
+  color: var(--color-primary, #3498db);
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #3b4444;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+/* Buttons Container */
+.buttons-container {
+  margin-bottom: 30px;
+  display: flex;
+  gap: 15px;
+}
+
+.add-section-button,
+.download-pdf-button {
+  background-color: #3498db;
+  color: #1f1f22;
+  border: none;
+  padding: 10px 25px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.add-section-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.add-section-button:hover:not(:disabled),
+.download-pdf-button:hover {
+  background-color: #2980b9;
+}
+
+/* Resume Content Area */
+#resume-to-pdf {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  white-space: pre-wrap; /* Preserve formatting from <pre> */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+/* Loading and Error Text */
+.loading-text,
+.error-text {
+  font-size: 1.2rem;
+  color: #e74c3c;
+}
+
+/* Scrollbar Styling for Editor if content is long */
+#resume-to-pdf {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Sidebar Nav fixes if needed */
+nav {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+}
+
+/* Links inside Sidenav */
+nav a {
+  color: #ecf0f1;
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: #3498db;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .resume-editor-main {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
