@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../AuthContext"; // adjust path if needed
 import "./Chatbot.css";
 
-export default function Chatbot() {
+export default function Chatbot({ onServerPayload = null }) {
   const { user } = useAuth();              // expects { token, ...userData }
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -72,6 +72,10 @@ export default function Chatbot() {
         ...prev,
         { sender: "bot", text: data?.reply ?? "…" },
       ]);
+    if (onServerPayload) {
+        const { reply, ...rest } = data || {};
+        onServerPayload(rest); // { skillScore, careerPath, courses, mentors }
+      }
     } catch (e) {
       console.error(e);
       setMessages((prev) => [

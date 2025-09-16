@@ -248,8 +248,20 @@ def chat():
         # Optionally return history too (handy for debugging)
         # history = retrieve_short_term_memory(uid, db)
         # return jsonify({"reply": reply_text, "history": history}), 200
+        #         
+        doc_ref = db.collection("users").document(uid)
+        user_doc = doc_ref.get()
+        user_data = user_doc.to_dict()
+        courses = user_data.get("sortedCourses")
+        mentors = user_data.get("sortedMentors")
+        stats = user_data.get("skillScore") 
+        career_path = user_data.get("careerPath")
 
-        return jsonify({"reply": reply_text}), 200
+        return jsonify({"reply": reply_text, 
+                        "skillScore": stats,
+                        "careerPath": career_path,
+                        "courses": courses,
+                        "mentors": mentors}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -332,12 +344,6 @@ def get_stats():
         mentors = user_data.get("sortedMentors")
         stats = user_data.get("skillScore") 
         career_path = user_data.get("careerPath")
-        print("SHIT HAPPENS HERE")
-        print(mentors)
-        print(courses)
-        print(stats)
-        print(career_path)
-
         
         return jsonify({
             "skillScore": stats,

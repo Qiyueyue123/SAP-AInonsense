@@ -28,6 +28,20 @@ export default function Stats() {
     return Math.max(0, Math.min(100, Math.round((n / MAX) * 100)));
   };
 
+   // 🔗 NEW: receive payload from Chatbot and update Stats state
+  const handleChatServerPayload = (payload) => {
+    if (!payload) return;
+    const { skillScore: s, careerPath: cp, courses: cs, mentors: ms } = payload;
+
+    if (s && typeof s === "object") {
+      // merge scores (keeps existing keys unless overwritten by backend)
+      setSkillScore((prev) => ({ ...prev, ...s }));
+    }
+    if (Array.isArray(cp)) setCareerPath(cp);
+    if (Array.isArray(cs)) setCourses(cs);
+    if (Array.isArray(ms)) setMentors(ms);
+  };
+
   useEffect(() => {
     if (!user?.token) return;
     let alive = true;
@@ -57,9 +71,8 @@ export default function Stats() {
   }, [user?.token]);
 
   return (
-    <div style={{ width: "100%", padding: "2rem", boxSizing: "border-box" }}>
-      <SidebarNav />
-
+    <SidebarNav>
+      <div style={{ width: "100%", padding: "2rem", boxSizing: "border-box" }}>
       {/* 🔝 Top skills bar */}
       <div className="stats-topbar">
         {Object.keys(skillScore).length === 0 && !loading && (
@@ -79,109 +92,74 @@ export default function Stats() {
       </div>
 
       {/* Main section */}
-      <div
-        style={{
-          background: "#fff",
-          padding: "2rem",
-          borderRadius: "8px",
-          display: "flex",
-          gap: "2rem",
-          marginTop: "1rem",
-        }}
-      >
-      {/* Left: Recommendations */}
-      <div style={{ flex: 2 }}>
-        <h3>Recommendations</h3>
+<div className="stats-main">
+  {/* Left: Recommendations */}
+  <div className="panel panel--list">
+    <h3>Recommendations</h3>
 
-        <div>
-          <strong>Courses</strong>
-          {loading && <p>Loading…</p>}
-          {err && <p style={{ color: "red" }}>{err}</p>}
-          <ul>
-            {visibleCourses.map((course) => (
-              <li key={course.id ?? course.name}>
-                {course.name ?? String(course)}
-              </li>
-            ))}
-          </ul>
+    <div>
+      <strong>Courses</strong>
+      {loading && <p>Loading…</p>}
+      {err && <p style={{ color: "red" }}>{err}</p>}
+      <ul>
+        {visibleCourses.map((course) => (
+          <li key={course.id ?? course.name}>
+            {course.name ?? String(course)}
+          </li>
+        ))}
+      </ul>
 
-          {courses && courses.length > 3 && (
-            <button
-              type="button"
-              onClick={() => setShowAllCourses((v) => !v)}
-              style={{ background: "none", border: "none", color: "#0b5fff", padding: 0, cursor: "pointer" }}
-              aria-expanded={showAllCourses}
-            >
-              {showAllCourses ? "View less" : `View more (${courses.length - 3} more)`}
-            </button>
-          )}
-        </div>
+      {courses.length > 3 && (
+        <button
+          type="button"
+          className="view-toggle"
+          onClick={() => setShowAllCourses((v) => !v)}
+          aria-expanded={showAllCourses}
 
-        <div style={{ marginTop: 16 }}>
-          <strong>Mentors</strong>
-          <ul>
-            {visibleMentors.map((m) => (
-              <li key={m.id ?? m.name}>{m.name ?? String(m)}</li>
-            ))}
-          </ul>
-
-          {mentors && mentors.length > 3 && (
-            <button
-              type="button"
-              onClick={() => setShowAllMentors((v) => !v)}
-              style={{ background: "none", border: "none", color: "#0b5fff", padding: 0, cursor: "pointer" }}
-              aria-expanded={showAllMentors}
-            >
-              {showAllMentors ? "View less" : `View more (${mentors.length - 3} more)`}
-            </button>
-          )}
-        </div>
-      </div>
-
-
-        {/* Middle: Chatbot */}
-        <div
-            style={{
-            background: "#f7f7f7",
-            borderRadius: "6px",
-            flex: 1.5,
-            minHeight: "500px",
-            maxHeight: "600px", // ✅ limit height to allow scrolling
-            minWidth: "500px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            padding: "1rem",
-            overflowY: "auto", // ✅ enables vertical scroll
-  }}
         >
-          <h4>CHATBOT</h4>
-          <Chatbot />
-        </div>
-
-        {/* Right: Career Path */}
-        <div
-          style={{
-            background: "#f7f7f7",
-            borderRadius: "8px",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minWidth: "300px",
-            padding: "1rem",
-          }}
-        >
-          <h4>Career Path</h4>
-          <ul>
-            {careerPath.map((step, i) => (
-              <li key={`cp-${i}`}>{step}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
+          {showAllCourses ? "View less" : `View more (${courses.length - 3} more)`}
+        </button>
+      )}
     </div>
+
+    <div style={{ marginTop: 16 }}>
+      <strong>Mentors</strong>
+      <ul>
+        {visibleMentors.map((m) => (
+          <li key={m.id ?? m.name}>{m.name ?? String(m)}</li>
+        ))}
+      </ul>
+
+      {mentors.length > 3 && (
+        <button
+          type="button"
+          className="view-toggle"
+          onClick={() => setShowAllMentors((v) => !v)}
+          aria-expanded={showAllMentors}
+        >
+          {showAllMentors ? "View less" : `View more (${mentors.length - 3} more)`}
+        </button>
+      )}
+    </div>
+  </div>
+
+  {/* Middle: Chatbot (centered) */}
+  <div className="panel panel--chatbot">
+    <h4>AURA CAREER COACH</h4>
+    <Chatbot onServerPayload={handleChatServerPayload} />
+  </div>
+
+  {/* Right: Career Path */}
+  <div className="panel panel--career">
+    <h4>Career Path</h4>
+    <ul>
+      {careerPath.map((step, i) => (
+        <li key={`cp-${i}`}>{step}</li>
+      ))}
+    </ul>
+  </div>
+</div>
+    </div>
+  </SidebarNav>
   );
 }
