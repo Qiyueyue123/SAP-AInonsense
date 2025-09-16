@@ -8,12 +8,14 @@ from agents.pdf_to_image import pdf_page_to_base64
 from agents.process_resume import process_resume
 from agents.career_coach import get_chatbot_response, retrieve_relevant_memory, retrieve_short_term_memory
 from testScoring import ResumeProcessor
-from validCareerChecker import matchJob
-from careerPathConstructor import careerPathConstructor
+from agents.validCareerChecker import matchJob
+from agents.careerPathConstructor import careerPathConstructor
 import uuid
 import json
 from agents.edit_resume import edit_resume
 from dotenv import load_dotenv
+from agents.course import search_courses
+from agents.mentor import search_mentors
 # would need to import a function to calculate the targetJobSkillScore based on target job
 
 skillScore = {
@@ -192,7 +194,8 @@ def upload_resume():
         result_tuple = resumeProcessor.processResume(filepath)
         # assuming processResume returns (skill_score, feedback)
         skill_score, feedback = result_tuple if isinstance(result_tuple, (list, tuple)) else (None, None)
-
+        search_courses(uid, db)
+        search_mentors(uid, db)
         return jsonify({
             "skillScore": skill_score,
             "feedback": feedback
