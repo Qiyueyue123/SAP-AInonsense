@@ -67,8 +67,10 @@ def search_mentors(uid, db):
     print("Sorted Mentors:", sorted_mentor_names)
 
     # Save sorted mentor names to Firestore under the user's document
+    print("YES IT IS BEING UPDATED ACCORDINGLY")
     user_ref.update({
         "sortedMentors": sorted_mentor_names  # This will create or update the field "sortedMentors"
     })
+    print(user_ref.get('sortedMentors'))
 
     return sorted_mentor_names

@@ -12,8 +12,11 @@ from agents.validCareerChecker import matchJob
 from agents.careerPathConstructor import careerPathConstructor
 import uuid
 import json
+from agents.gsTargetScore import assignTargetScore, setterTargetScore
 from agents.course import search_courses
 from agents.mentor import search_mentors
+
+
 # would need to import a function to calculate the targetJobSkillScore based on target job
 
 skillScore = {
@@ -121,6 +124,8 @@ def create_account():
         # This will create a new document with the given UID, or update it if it exists
 
         #would also need to call an imported function to calculate the career path accordingly
+        valueToReturn = db.collection('jobs').document(targetJob).get().to_dict().get('jobScore')
+        db.collection('users').document(uid).set({"targetScore": valueToReturn}, merge=True)
         currentCareerPath = careerPathConstructor(db, job, targetJob)
         print(currentCareerPath)
         users_ref.set({ "uid": uid,
@@ -128,11 +133,11 @@ def create_account():
                         "job" : job,
                         "targetJob" : targetJob,
                         "skillScore": skillScore,
-                        "targetScore": dummyTargetScore,
-                        "mentorScore": dummyTargetScore,
-                        "courseScore": dummyTargetScore,
+                        "mentorScore": valueToReturn,
+                        "courseScore": valueToReturn,
                         "careerPath" : currentCareerPath
                           })
+        
         
         return jsonify({"message": "Account created successfully", "email": email, "uid": uid}), 200
     except Exception as e:

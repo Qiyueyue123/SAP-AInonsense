@@ -12,7 +12,14 @@ def get_user_data(db,uid):
 def getterTargetScore(uid):
     targetScore = get_user_data(uid)["targetScore"]
     return targetScore
-
+def assignTargetScore(db, uid, jobName):
+    try:
+        valueToReturn = db.collection('jobs').document(jobName).get().to_dict().get('jobScore')
+        db.collection('users').document(uid).set({"targetScore": valueToReturn}, merge=True)
+        return valueToReturn
+    except Exception as e:
+        print(f"Error assigning target score for job '{jobName}' and user '{uid}': {e}")
+    return valueToReturn
 def setterTargetScore(db, uid, modifierVector):
     targetScore = getterTargetScore(uid)
 
@@ -24,6 +31,7 @@ def setterTargetScore(db, uid, modifierVector):
 
     db.collection('users').document(uid).update({"TargetScore": targetScore})
     return targetScore
+
 
 def main():
     test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"

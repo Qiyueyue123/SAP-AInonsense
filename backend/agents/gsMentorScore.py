@@ -21,7 +21,9 @@ def setterMentorScore(db, uid, modifierVector):
         mentorScore[key] = max(0, min(20, new_value))
 
     db.collection('users').document(uid).update({"mentorScore": mentorScore})
+    print("I AM BEING CALLED")
     new_mentor_list = search_mentors(uid, db)
+    
     return new_mentor_list
 
 def main():

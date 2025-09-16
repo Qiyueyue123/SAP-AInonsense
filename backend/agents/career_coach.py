@@ -92,41 +92,45 @@ def retrieve_relevant_memory(user_id, current_input, db):
 def course_list_adjuster(db, uid: str, modifierVector):
     '''IF USER INDICATES CHANGE IN COURSE PREFERNCES, UPDATE THE COURSE TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION
     THE FUNCTION WILL UPDATE THE TARGET VECTOR AND DO A NEW SEARCH AND UPDATE THE RECOMMENDED COURSE LIST IN THE DB
-    THIS A TEMPLATE OF THE SCHEMA TO USE FOR THE MODIFIER VECTOR, WITH DUMMY VARIABLES, THE KEYS ARE THE STATS AND THE VALUES ARE HOW MUCH TO TRANSFORM BY (MAKE SURE EACH TRANSFORMATION IS LESS THAN 10):
-    dummyModeifierVector = {
+    THIS A TEMPLATE OF THE SCHEMA TO USE FOR THE MODIFIER VECTOR, WITH DUMMY VARIABLES, THE KEYS ARE THE STATS AND THE VALUES ARE HOW MUCH TO TRANSFORM BY (MAKE SURE EACH TRANSFORMATION IS LESS THAN 7):
+    dummyModifierVector = {
         'Client Management':      1.2,
-        'UI/UX Design':           5.3,
+        'UI/UX Design':           3.0,
         'Communication':          2.0,   
-        'Data Analysis':          3.1,
+        'Data Analysis':          2.1,
         'Code Optimization':      0.0,  
-        'Team Leadership':       -3.2,
-        'Presentation Skills':   -7.1,
+        'Team Leadership':       -2.9,
+        'Presentation Skills':   -0.2,
         'Database Management':    0.0,
         'Automation/Scripting':  -0.5 ,
         'Problem Solving':        0.0    
         }
+    You may return a variant of the return statement to indicate the idea that his preference has been updated
     '''
     setterCourseScore(db, uid, modifierVector)
+    return "Your preferences have been updated"
 
 @tool
 def mentor_list_adjuster(db, uid: str, modifierVector):
     '''IF USER INDICATES CHANGE IN MENTOR PREFERNCES, UPDATE THE MENTOR TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION
     THE FUNCTION WILL UPDATE THE TARGET VECTOR AND DO A NEW SEARCH AND UPDATE THE RECOMMENDED MENTOR LIST IN THE DB
-    THIS A TEMPLATE OF THE SCHEMA TO USE FOR THE MODIFIER VECTOR, WITH DUMMY VARIABLES, THE KEYS ARE THE STATS AND THE VALUES ARE HOW MUCH TO TRANSFORM BY (MAKE SURE EACH TRANSFORMATION IS LESS THAN 10):
-    dummyModeifierVector = {
+    THIS A TEMPLATE OF THE SCHEMA TO USE FOR THE MODIFIER VECTOR, WITH DUMMY VARIABLES, THE KEYS ARE THE STATS AND THE VALUES ARE HOW MUCH TO TRANSFORM BY (MAKE SURE EACH TRANSFORMATION IS LESS THAN 7):
+    dummyModifierVector = {
         'Client Management':      1.2,
-        'UI/UX Design':           5.3,
+        'UI/UX Design':           3.0,
         'Communication':          2.0,   
-        'Data Analysis':          3.1,
+        'Data Analysis':          2.1,
         'Code Optimization':      0.0,  
-        'Team Leadership':       -3.2,
-        'Presentation Skills':   -7.1,
+        'Team Leadership':       -2.9,
+        'Presentation Skills':   -0.2,
         'Database Management':    0.0,
         'Automation/Scripting':  -0.5 ,
         'Problem Solving':        0.0    
         }
+    You may return a variant of the return statement to indicate the idea that his preference has been updated
     '''
-    return setterMentorScore(db, uid, modifierVector)
+    setterMentorScore(db, uid, modifierVector)
+    return "Your preferences have been updated"
 
 #NEED TO WORK IN VALIDCAREERCHECKER MATCH JOB, CHECK VALID BEFORE UPDATE
 @tool
@@ -179,12 +183,13 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
     - The tools for adjusting the vectors expect a transformative vector in the arguement, indicating how much to adjust each stat in the vector by
 
     YOUR TASKS:
-    - If the user asks a general question about their resume (e.g., "what was my role at X?"), answer it by referencing the 'Raw Resume Data'.
+    - If the user asks a general question about their resume (e.g., "what was my role at X?"), answer it by referencing the 'Raw Resume Data'. For list of datas, only mention the first 5 entries.
     - If the user talks about a desired end job or wanting to change their career path, use the 'update_current_job' tool. Inform the user of the changes made
     - If the user talks about a desired end job or wanting to change their career path, use the 'update_end_job' tool. Inform the user of the changes made
     - If the user talks about any preferences for their recommended courses, use the 'course_list_adjuster' tool. Inform the user that the preferences has been adjusted.
     - If the user talks about any preferences for their recommended mentors, use the 'mentor_list_adjuster' tool. Inform the user that the preferences has been adjusted.
     - For anything else, respond conversationally.
+    
     """
     
     messages = [SystemMessage(content=system_prompt)] + chat_history + [{"role": "user", "content": user_message}]
