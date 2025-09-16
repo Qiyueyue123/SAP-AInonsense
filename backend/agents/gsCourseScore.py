@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from .course import search_courses
 
 
 def get_user_data(db,uid):
@@ -21,7 +22,9 @@ def setterCourseScore(db,uid, modifierVector):
         courseScore[key] = max(0, min(20, new_value))
 
     db.collection('users').document(uid).update({"courseScore": courseScore})
-    return courseScore
+    new_course_list = search_courses(uid, db)
+    return new_course_list
+    
 
 def main():
     test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"

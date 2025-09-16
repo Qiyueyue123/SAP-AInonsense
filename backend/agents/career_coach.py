@@ -12,6 +12,7 @@ from .gsMentorScore import getterMentorScore, setterMentorScore
 from .gsTargetJob import getterTargetJob, setterTargetJob
 from .gsTargetScore import getterTargetScore, setterTargetScore
 from .updateCareerPath import updateCareer
+from .course import search_courses
 
 # --- Initialization ---
 
@@ -88,43 +89,38 @@ def retrieve_relevant_memory(user_id, current_input, db):
 # --- "Tools" the LLM can use ---
 
 @tool
-def course_target_vector_adjuster(*args, **kwargs):
-    '''IF USER INDICATES CHANGE IN COURSE PREFERNCES, UPDATE THE COURSE TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION'''
-    return setterCourseScore(*args, **kwargs)
+def course_list_adjuster(*args, **kwargs):
+    '''IF USER INDICATES CHANGE IN COURSE PREFERNCES, UPDATE THE COURSE TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION
+    THE FUNCTION WILL UPDATE THE TARGET VECTOR AND DO A NEW SEARCH AND UPDATE THE RECOMMENDED COURSE LIST IN THE DB
+    '''
+    setterCourseScore(*args, **kwargs)
 
 @tool
-def mentor_target_vector_adjuster(*args, **kwargs):
-    '''IF USER INDICATES CHANGE IN MENTOR PREFERNCES, UPDATE THE MENTOR TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION'''
+def mentor_list_adjuster(*args, **kwargs):
+    '''IF USER INDICATES CHANGE IN MENTOR PREFERNCES, UPDATE THE MENTOR TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION
+    THE FUNCTION WILL UPDATE THE TARGET VECTOR AND DO A NEW SEARCH AND UPDATE THE RECOMMENDED MENTOR LIST IN THE DB
+    '''
     return setterMentorScore(*args, **kwargs)
 
 #NEED TO WORK IN VALIDCAREERCHECKER MATCH JOB, CHECK VALID BEFORE UPDATE
 @tool
 def update_current_job(*args, **kwargs):
+    '''IF USER INDICATES CHANGE IN CURRENT JOB, UPDATE THE CURRENT JOB USING THIS TOOL
+    THE FUNCTION WILL UPDATE THE CURRENT JOB IN DB AND RECALCULATE A NEW CAREER PATH AND SAVE TO DB
+    '''
     return setterJob(*args, **kwargs)
 
 @tool
 def update_end_job(*args, **kwargs):
+    '''IF USER INDICATES CHANGE IN DESIRED END JOB, UPDATE THE END JOB USING THIS TOOL
+    THE FUNCTION WILL UPDATE THE END JOB AND RECALCULATE A NEW CAREER PATH AND SAVE TO DB
+    '''
     return setterTargetJob(*args, **kwargs)
 
-@tool
-def update_Career_path(*args, **kwargs):
-    return updateCareer(*args,**kwargs)
 
-@tool
-def update_target_vector(user_id: str, skill: str, score: int, db) -> str:
-    """Use this tool when a user says he wants to change his end goal job or career path."""
-    if not db: return "Error: Database connection is not available."
-    try:
-        user_ref = db.collection('users').document(user_id)
-        user_ref.set({'targetVector': {skill: score}}, merge=True)
-        # user_ref.update({'careerPath':firestore.ArrayRemove()})
-        #FIGURE OUT HOW TO CHANGE CAREER PATH ARRAY
-        return f"Got it! I've set your target for '{skill}' to a score of {score}."
-    except Exception as e:
-        return f"Error updating your profile: {e}"
 
 # --- Bind tools to the LLM ---
-tools = [course_target_vector_adjuster, mentor_target_vector_adjuster, update_end_job, update_Career_path,update_target_vector]
+tools = [course_list_adjuster, mentor_list_adjuster, update_end_job, update_current_job]
 if llm:
     llm_with_tools = llm.bind_tools(tools)
 else:
@@ -144,10 +140,11 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
     HERE IS THE USER'S FULL PROFILE:
     - Raw Resume Data: {json.dumps(user_profile.get('resume'), indent=2)}
     - Calculated Skill Scores (out of 20): {json.dumps(user_profile.get('skillScores'), indent=2)}
-    - Target Job vector: {json.dumps(user_profile.get('targetVector'), indent=2)}
     - Current Job and career path for final job: {json.dumps(user_profile.get('careerPath'), indent=2)}
     - Target Course Vector: {json.dumps(user_profile.get('courseScore'), indent=2)}
     - Target Mentor Vector: {json.dumps(user_profile.get('mentorScore'), indent=2)}
+    - Recommended Courses (ordered): {json.dumps(user_profile.get('sortedCourses'))}
+    - Recommended Mentors (ordered): {json.dumps(user_profile.get('sortedMentors'))}
 
     CONTEXT OF PROFILE DETAILS:
     - The target course and mentor vectors are used to search against the mentor and courses database to sort the courses and mentors by similarity to the target vectors
@@ -156,9 +153,10 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
 
     YOUR TASKS:
     - If the user asks a general question about their resume (e.g., "what was my role at X?"), answer it by referencing the 'Raw Resume Data'.
-    - If the user talks about a desired job or wanting to change their career path, use the 'update_target_vector' tool.
-    - If the user talks about any preferences for their recommended courses, use the 'course_target_vector_adjuster' tool. Inform the user that the preferences has been adjusted.
-    - If the user talks about any preferences for their recommended mentors, use the 'mentor_target_vector_adjuster' tool. Inform the user that the preferences has been adjusted.
+    - If the user talks about a desired end job or wanting to change their career path, use the 'update_current_job' tool. Inform the user of the changes made
+    - If the user talks about a desired end job or wanting to change their career path, use the 'update_end_job' tool. Inform the user of the changes made
+    - If the user talks about any preferences for their recommended courses, use the 'course_list_adjuster' tool. Inform the user that the preferences has been adjusted.
+    - If the user talks about any preferences for their recommended mentors, use the 'mentor_list_adjuster' tool. Inform the user that the preferences has been adjusted.
     - For anything else, respond conversationally.
     """
     

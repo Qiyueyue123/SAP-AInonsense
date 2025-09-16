@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from .mentor import search_mentors
 
 def get_user_data(db,uid):
     userRef = db.collection('users').document(uid)
@@ -20,7 +21,8 @@ def setterMentorScore(db, uid, modifierVector):
         mentorScore[key] = max(0, min(20, new_value))
 
     db.collection('users').document(uid).update({"mentorScore": mentorScore})
-    return mentorScore
+    new_mentor_list = search_mentors(uid, db)
+    return new_mentor_list
 
 def main():
     test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"
