@@ -71,5 +71,4 @@ def search_courses(uid, db):
 
     return sorted_mentor_names
 
-# Call the function
-search_courses("wr2ButXm5yNc8yGNVSX2JrsmDCz1", db)
+

@@ -1,0 +1,19 @@
+import os
+from dotenv import load_dotenv
+
+
+def get_user_data(db,uid):
+    userRef = db.collection('users').document(uid)
+    userDoc = userRef.get().to_dict()
+    return userDoc
+
+def getterTargetJob(db,uid):
+    targetJob = get_user_data(db,uid)["targetJob"]
+    return targetJob
+
+def main():
+    test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"
+
+
+if __name__ == "__main__":
+    main()

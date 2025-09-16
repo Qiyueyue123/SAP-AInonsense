@@ -32,7 +32,6 @@ export default function Stats() {
         setLoading(true);
         setErr(null);
         const res = await api.get("/stats", {
-          headers: { Authorization: `Bearer ${user.token}` },
           // params: { uid: user.uid }, // only if you still use ?uid=...
         });
         if (!alive) return;

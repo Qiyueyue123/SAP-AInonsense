@@ -72,6 +72,3 @@ def search_mentors(uid, db):
     })
 
     return sorted_mentor_names
-
-# Call the function
-search_mentors("wr2ButXm5yNc8yGNVSX2JrsmDCz1", db)

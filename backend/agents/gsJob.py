@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from .updateCareerPath import updateCareer
 
 
 def get_user_data(db,uid):
@@ -14,7 +15,8 @@ def getterJob(db,uid):
 def setterJob(db, uid, newJob):
     
     db.collection('users').document(uid).update({"job": newJob})
-    return newJob
+    CP = updateCareer(db, uid)
+    return CP
 
 def main():
     test_uid = "28q1SUuhhCRnfJgd0mdM6NcflLr2"
