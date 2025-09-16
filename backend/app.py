@@ -15,6 +15,7 @@ import json
 from agents.gsTargetScore import assignTargetScore, setterTargetScore
 from agents.course import search_courses
 from agents.mentor import search_mentors
+from agents.edit_resume import edit_resume
 
 
 # would need to import a function to calculate the targetJobSkillScore based on target job
@@ -207,6 +208,71 @@ def upload_resume():
     except Exception as e:
         # In production, log stacktrace with logging library
         return jsonify({"error": f"Upload failed: {str(e)}"}), 500
+    
+@app.route("/resume-editor", methods=["GET"])
+@verify_firebase_token
+def get_resume():
+    uid = request.args.get("uid")
+    user_ref = db.collection("users").document(uid)
+    doc = user_ref.get()
+    if doc.exists:
+        resume = doc.to_dict().get("resume")
+        return jsonify(resume), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
+@app.route("/resume-editor/paraphrase", methods=["POST"])
+@verify_firebase_token
+def paraphrase_section():
+    try:
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        data = request.get_json()
+        header = data.get("header")
+        content = data.get("content")
+        text_to_rephrase = data.get("text_to_rephrase")
+
+        if not header or not content or not text_to_rephrase:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Log input for debugging (optional)
+        print(f"Paraphrasing section '{header}' for user {uid}")
+        print(f"Original text to rephrase: {text_to_rephrase}")
+
+        paraphrased_text = edit_resume(header, content, mode=1, text_rephrase=text_to_rephrase)
+
+        # Log paraphrased output (optional)
+        print(f"Paraphrased text: {paraphrased_text}")
+
+        return jsonify({"paraphrased_text": paraphrased_text}), 200
+
+    except Exception as e:
+        print(f"Paraphrase error: {e}", flush=True)
+        return jsonify({"error": f"Failed paraphrase: {str(e)}"}), 500
+    
+
+@app.route("/resume-editor/update", methods=["POST"])
+@verify_firebase_token
+def update_resume():
+    try:
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        data = request.get_json()
+        updated_resume = data.get("resume")
+        if updated_resume is None:
+            return jsonify({"error": "No resume data provided"}), 400
+
+        user_ref = db.collection("users").document(uid)
+        user_ref.set({"resume": updated_resume}, merge=True)
+
+        return jsonify({"message": "Resume updated successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to update resume: {str(e)}"}), 500
     
 
 

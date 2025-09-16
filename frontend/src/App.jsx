@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
 import Homepage from "./pages/Homepage";
 import ResumeUpload from "./pages/ResumeUpload";
+import ResumeEditor from "./pages/ResumeEditor";
 import Stats from "./pages/Stats"
 import CareerPath from "./pages/CareerPath"
 
@@ -21,6 +22,7 @@ export default function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/homepage" element={<Homepage />} />
             <Route path="/resume-upload" element={<ResumeUpload />} />
+            <Route path="/resume-editor" element={<ResumeEditor />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/career-path" element={<CareerPath />} />
           </Route>

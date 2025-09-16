@@ -29,7 +29,7 @@ def edit_resume(header, content, mode, text_rephrase = ""): #mode should be 1 or
         2. Help them add a new activity or entry for their resume under the respective section
         For both, take context from the section {header} and the details {content}
         Your job now is mode {mode}
-        If mode 1, rephrase {text_rephrase} return paraphrased text as output.
+        If mode 1, rephrase {text_rephrase} return paraphrased text as output. Do NOT give multiple options, the output is just the string that can replace the given text.
         If mode 2, generate the JSON for the activity based on the context provided. The JSON keys should include
         "header", e.g "LEADERSHIP EXPERIENCE | CO-CURRICULAR ACTIVITIES",
         "content", e.g
