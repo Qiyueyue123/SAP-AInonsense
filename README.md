@@ -20,15 +20,15 @@ cd backend
 # create & activate virtualenv
 virtualenv venv
 source venv/bin/activate   # macOS/Linux
-# venv\Scripts\activate    # Windows (cmd)
-# venv\Scripts\activate.ps1  # Windows (PowerShell)
+venv\Scripts\activate    # Windows (cmd)
+venv\Scripts\activate.ps1  # Windows (PowerShell)
 
 # install dependencies
 pip install -r requirements.txt
 
 # configure env vars
 cp .env.example .env
-# then edit .env with your local secrets
+then edit .env with your local secrets (see below)
 
 # run server
 python app.py
@@ -41,7 +41,7 @@ npm install
 
 # configure env vars
 cp .env.example .env
-# then edit .env to point to your backend, e.g. VITE_API_BASE_URL=http://127.0.0.1:5000
+then edit .env to point to your backend, e.g. VITE_API_BASE_URL=http://127.0.0.1:5000
 
 # start dev server
 npm run dev
