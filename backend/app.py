@@ -184,7 +184,7 @@ def upload_resume():
         json_filepath_for_db = resumeProcessor.restructureJson(filepath)
         with open(json_filepath_for_db, "r") as file:
             json_data = json.load(file)
-            doc_ref.set({"resume": json_data}) 
+            doc_ref.update({"resume": json_data}) 
 
         # Run scoring pipeline
         result_tuple = resumeProcessor.processResume(filepath)
@@ -199,9 +199,129 @@ def upload_resume():
     except Exception as e:
         # In production, log stacktrace with logging library
         return jsonify({"error": f"Upload failed: {str(e)}"}), 500
+    
+
+
+# ---- Chat: history ----
+@app.route("/api/chat/history", methods=["GET"])
+@verify_firebase_token
+def get_chat_history():
+    """
+    Returns the last N messages (user + assistant) for the authenticated user.
+    """
+    try:
+        uid = request.user["uid"]
+        history = retrieve_short_term_memory(uid, db)  # from agents.career_coach
+        return jsonify({"chatHistory": history}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ---- Chat: send a message ----
+@app.route("/api/chat", methods=["POST"])
+@verify_firebase_token
+def chat():
+    """
+    Receives a user message, gets an AI reply, and persists BOTH turns to memory.
+    """
+    try:
+        uid = request.user["uid"]
+        data = request.get_json(silent=True) or {}
+        user_message = (data.get("message") or "").strip()
+        if not user_message:
+            return jsonify({"error": "No message provided"}), 400
+
+        # Call your agent (this will also update short-term/long-term memory)
+        ai_response = get_chatbot_response(user_message, uid, db)  # from agents.career_coach
+        reply_text = ai_response.get("content") if isinstance(ai_response, dict) else str(ai_response)
+
+        # Optionally return history too (handy for debugging)
+        # history = retrieve_short_term_memory(uid, db)
+        # return jsonify({"reply": reply_text, "history": history}), 200
+
+        return jsonify({"reply": reply_text}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 
+@app.route("/stats", methods=["GET"])
+@verify_firebase_token
+def get_stats():
+    """
+    Fetches the user's stats (skills, career path, and recommendations)
+    for the main dashboard.
+    """
+    try:
+        # Get the UID from the verified Firebase token
+        uid = getattr(request, "user", {}).get("uid")
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+
+        # Fetch the user's document from Firestore
+        doc_ref = db.collection("users").document(uid)
+        user_doc = doc_ref.get()
+
+        if not user_doc.exists:
+            return jsonify({"error": "User profile not found"}), 404
+        
+        user_data = user_doc.to_dict()
+
+        # --- Recommendations (real query + fallback) ---
+
+        # 1) Prefer explicit lists already saved on the user profile
+        raw_courses = user_data.get("course_rec")
+        raw_mentors = user_data.get("mentors") if "mentors" in user_data else user_data.get("mentor")
+
+        def _to_listish(v):
+            """Accept list or dict and return a list of objects {id, name?, score?}."""
+            if isinstance(v, list):
+                return v
+            if isinstance(v, dict):
+                items = []
+                for k, val in v.items():
+                    if isinstance(val, dict):
+                        # keep existing fields (e.g., name, url, score)
+                        item = {"id": k, **val}
+                        item.setdefault("name", k)
+                    else:
+                        # scalar score; synthesize name from key
+                        item = {"id": k, "name": str(k), "score": val}
+                    items.append(item)
+                return items
+            return []
+
+        courses_rec = _to_listish(raw_courses)
+        mentors_rec = _to_listish(raw_mentors)
+
+        # 2) If nothing saved yet, derive from score dicts on the profile
+        #    (These exist from create-account: courseScore / mentorScore)
+        if not courses_rec:
+            course_score = user_data.get("courseScore", {}) or {}
+            courses_rec = [
+                {"id": k, "name": str(k), "score": float(v)}
+                for k, v in sorted(course_score.items(), key=lambda kv: kv[1], reverse=True)
+            ][:5]  # top 5
+
+        if not mentors_rec:
+            mentor_score = user_data.get("mentorScore", {}) or {}
+            mentors_rec = [
+                {"id": k, "name": str(k), "score": float(v)}
+                for k, v in sorted(mentor_score.items(), key=lambda kv: kv[1], reverse=True)
+            ][:5]  # top 5
+
+        # Return the data in the format the frontend expects
+        return jsonify({
+            "skillScore": user_data.get("skillScore", {}),
+            "careerPath": user_data.get("careerPath", []),
+            "courses": courses_rec,
+            "mentors": mentors_rec
+        }), 200
+
+
+    except Exception as e:
+        print(f"[ERROR /stats]: {str(e)}")
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
