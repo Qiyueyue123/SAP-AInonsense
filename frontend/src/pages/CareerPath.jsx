@@ -1,137 +1,133 @@
-import { useState } from "react";
+import React from "react";
 import SidebarNav from "../components/sidenav";
-import "./careerPath.css"; // Import the custom CSS file for the career path page
+import "./careerPath.css";
+import api from "../axios";   
 
-export default function CareerPath() {
-  // State for the job titles
-  const [jobTitles, setJobTitles] = useState({
-    current: "Software Developer",
-    intermediate1: "Senior Software Developer",
-    intermediate2: "Lead Developer",
-    intermediate3: "Engineering Manager",
-    final: "CTO (Chief Technology Officer)",
-  });
+class CareerPath extends React.Component {
+  constructor(props) {
+    super(props);
 
-  // State for editing
-  const [editing, setEditing] = useState(false); // Toggle edit mode
+    this.state = {
+      editing: false,
+      jobTitles:["Junior Developer","Software Developer","Senior Developer","Engineering Manager","CTO"]
+      
+    };
+  }
+  
+  async componentDidMount() {
+  var self = this;
+  try {
+    var response = await api.get("http://localhost:5000/career-path");
+    var careerPath = response.data.careerPath;
+    self.setState({ jobTitles: careerPath });
+  } catch (error) {
+    console.error("Error fetching career path:", error);
+  }
+}
 
-  const handleJobChange = (e, jobPosition) => {
-    setJobTitles((prevTitles) => ({
-      ...prevTitles,
-      [jobPosition]: e.target.value,
-    }));
-  };
+  toggleEdit() {
+    this.setState({ editing: true });
+  }
 
-  const handleSave = () => {
-    // Logic to save all changes (for now, we are simply saving in the state)
-    setEditing(false); // Exit edit mode
-  };
+  cancelEdit() {
+    this.setState({ editing: false });
+  }
 
-  return (
+  handleInputChange(event, index) {
+    var updatedTitles = [...this.state.jobTitles];
+    updatedTitles[index] = event.target.value;
+
+    this.setState({
+      jobTitles: updatedTitles
+    });
+  }
+
+  handleSave() {
+    // ============================
+    // ✅ INSERT BACKEND CALL HERE
+    // Example: Send updated jobTitles to backend (POST)
+    // ============================
+
+    /*
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:5000/setCareerPath/USER_ID", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(this.state.jobTitles));
+    */
+
+    this.setState({ editing: false });
+  }
+  //We shouldnt need this ah
+
+  renderJobField(label, index, className) {
+    var editing = this.state.editing;
+    var jobTitle = this.state.jobTitles[index];
+
+    return (
+      <div className={className}>
+        <h3>{label}</h3>
+        <div className="job-title">
+          {editing ? (
+            <input
+              type="text"
+              value={jobTitle}
+              onChange={(event) => this.handleInputChange(event, index)}
+            />
+          ) : (
+            <p>{jobTitle}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    return (
     <div className="career-path-container">
       <SidebarNav />
       <div className="career-path-content">
         <h2>Your Career Path</h2>
         <p>Here’s how you can progress through your career:</p>
 
-        {/* Career Path Chain */}
         <div className="career-path-chain">
-          {/* Current Job */}
-          <div className="career-path-item current-job">
-            <h3>Current Position</h3>
-            <div className="job-title">
-              {editing ? (
-                <input
-                  type="text"
-                  value={jobTitles.current}
-                  onChange={(e) => handleJobChange(e, "current")}
-                />
-              ) : (
-                <p>{jobTitles.current}</p>
-              )}
-            </div>
-          </div>
+          {this.state.jobTitles.map((job, index) => {
+            const label = `Position ${index + 1}`;
 
-          {/* Intermediate Jobs */}
-          <div className="career-path-item intermediate-job">
-            <h3>Intermediate Position 1</h3>
-            <div className="job-title">
-              {editing ? (
-                <input
-                  type="text"
-                  value={jobTitles.intermediate1}
-                  onChange={(e) => handleJobChange(e, "intermediate1")}
-                />
-              ) : (
-                <p>{jobTitles.intermediate1}</p>
-              )}
-            </div>
-          </div>
+            let className = "career-path-item intermediate-job";
+            if (index === 0) className = "career-path-item current-job";
+            else if (index === this.state.jobTitles.length - 1) className = "career-path-item final-job";
 
-          <div className="career-path-item intermediate-job">
-            <h3>Intermediate Position 2</h3>
-            <div className="job-title">
-              {editing ? (
-                <input
-                  type="text"
-                  value={jobTitles.intermediate2}
-                  onChange={(e) => handleJobChange(e, "intermediate2")}
-                />
-              ) : (
-                <p>{jobTitles.intermediate2}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="career-path-item intermediate-job">
-            <h3>Intermediate Position 3</h3>
-            <div className="job-title">
-              {editing ? (
-                <input
-                  type="text"
-                  value={jobTitles.intermediate3}
-                  onChange={(e) => handleJobChange(e, "intermediate3")}
-                />
-              ) : (
-                <p>{jobTitles.intermediate3}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Final Job */}
-          <div className="career-path-item final-job">
-            <h3>Final Goal Position</h3>
-            <div className="job-title">
-              {editing ? (
-                <input
-                  type="text"
-                  value={jobTitles.final}
-                  onChange={(e) => handleJobChange(e, "final")}
-                />
-              ) : (
-                <p>{jobTitles.final}</p>
-              )}
-            </div>
-          </div>
+            return (
+              <div key={index} className={className}>
+                <h3>{label}</h3>
+                <div className="job-title">
+                  {this.state.editing ? (
+                    <input
+                      type="text"
+                      value={job}
+                      onChange={(event) => this.handleInputChange(event, index)}
+                    />
+                  ) : (
+                    <p>{job}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Edit Button */}
-        {!editing && (
-          <button className="edit-button" onClick={() => setEditing(true)}>
+        {!this.state.editing && (
+          <button className="edit-button" onClick={this.toggleEdit.bind(this)}>
             Edit Job Titles
           </button>
         )}
 
-        {/* Save Changes Button */}
-        {editing && (
+        {this.state.editing && (
           <div className="save-cancel-container">
-            <button className="save-button" onClick={handleSave}>
+            <button className="save-button" onClick={this.handleSave.bind(this)}>
               Save Changes
             </button>
-            <button
-              className="cancel-button"
-              onClick={() => setEditing(false)}
-            >
+            <button className="cancel-button" onClick={this.cancelEdit.bind(this)}>
               Cancel
             </button>
           </div>
@@ -139,4 +135,7 @@ export default function CareerPath() {
       </div>
     </div>
   );
+  }
 }
+
+export default CareerPath;

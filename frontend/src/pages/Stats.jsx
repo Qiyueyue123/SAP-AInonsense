@@ -114,6 +114,7 @@ export default function Stats() {
           className="view-toggle"
           onClick={() => setShowAllCourses((v) => !v)}
           aria-expanded={showAllCourses}
+
         >
           {showAllCourses ? "View less" : `View more (${courses.length - 3} more)`}
         </button>
