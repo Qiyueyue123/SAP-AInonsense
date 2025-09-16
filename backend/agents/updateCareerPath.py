@@ -1,6 +1,6 @@
-from gsJob import getterJob
-from gsTargetJob import getterTargetJob
-from careerPathConstructor import careerPathConstructor
+from .gsJob import getterJob
+from .gsTargetJob import getterTargetJob
+from .careerPathConstructor import careerPathConstructor
 
 
 def updateCareer(db,uid):

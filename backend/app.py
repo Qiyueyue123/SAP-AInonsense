@@ -8,8 +8,8 @@ from agents.pdf_to_image import pdf_page_to_base64
 from agents.process_resume import process_resume
 from agents.career_coach import get_chatbot_response, retrieve_relevant_memory, retrieve_short_term_memory
 from testScoring import ResumeProcessor
-from validCareerChecker import matchJob
-from careerPathConstructor import careerPathConstructor
+from agents.validCareerChecker import matchJob
+from agents.careerPathConstructor import careerPathConstructor
 import uuid
 import json
 # would need to import a function to calculate the targetJobSkillScore based on target job

@@ -1,18 +1,17 @@
 import os
 import json
-import firebase_admin
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI 
 from langchain_core.tools import tool
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import OpenAIEmbeddings
-from firebase_admin import firestore, credentials
+from firebase_admin import firestore
 from sklearn.metrics.pairwise import cosine_similarity
-import sys
-
-
-
-from testScoring import ResumeProcessor
+from .gsCourseScore import getterCourseScore, setterCourseScore
+from .gsJob import getterJob, setterJob
+from .gsMentorScore import getterMentorScore, setterMentorScore
+from .gsTargetJob import getterTargetJob, setterTargetJob
+from .gsTargetScore import getterTargetScore, setterTargetScore
+from .updateCareerPath import updateCareer
 
 # --- Initialization ---
 
@@ -20,14 +19,11 @@ embeddings = OpenAIEmbeddings()
 
 try:
     llm = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"), temperature=0.6)
-    processor = ResumeProcessor() # Create an instance of our scoring engine
-    print("✅ LangChain models and ResumeProcessor initialized for career coach.")
 except Exception as e:
     llm = None
-    processor = None
     print(f"❌ ERROR initializing models for coach: {e}")
 
-
+#MEMORY
 #store last 10 messages in firestore for chat history
 def store_short_term_memory(user_id, chat_history, db):
     try:
@@ -54,7 +50,6 @@ def retrieve_short_term_memory(user_id, db):
     except Exception as e:
         print(f"Error retrieving short-term memory: {e}")
         return []  # Return empty if there's an error
-
 
 #to store embedding of conversation to firestore as long term memory
 def store_long_term_memory(user_id, conversation_summary, db):
@@ -91,6 +86,30 @@ def retrieve_relevant_memory(user_id, current_input, db):
     return relevant_memories
 
 # --- "Tools" the LLM can use ---
+
+@tool
+def course_target_vector_adjuster(*args, **kwargs):
+    '''IF USER INDICATES CHANGE IN COURSE PREFERNCES, UPDATE THE COURSE TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION'''
+    return setterCourseScore(*args, **kwargs)
+
+@tool
+def mentor_target_vector_adjuster(*args, **kwargs):
+    '''IF USER INDICATES CHANGE IN MENTOR PREFERNCES, UPDATE THE MENTOR TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION'''
+    return setterMentorScore(*args, **kwargs)
+
+#NEED TO WORK IN VALIDCAREERCHECKER MATCH JOB, CHECK VALID BEFORE UPDATE
+@tool
+def update_current_job(*args, **kwargs):
+    return setterJob(*args, **kwargs)
+
+@tool
+def update_end_job(*args, **kwargs):
+    return setterTargetJob(*args, **kwargs)
+
+@tool
+def update_Career_path(*args, **kwargs):
+    return updateCareer(*args,**kwargs)
+
 @tool
 def update_target_vector(user_id: str, skill: str, score: int, db) -> str:
     """Use this tool when a user says he wants to change his end goal job or career path."""
@@ -105,7 +124,7 @@ def update_target_vector(user_id: str, skill: str, score: int, db) -> str:
         return f"Error updating your profile: {e}"
 
 # --- Bind tools to the LLM ---
-tools = [update_target_vector]
+tools = [course_target_vector_adjuster, mentor_target_vector_adjuster, update_end_job, update_Career_path,update_target_vector]
 if llm:
     llm_with_tools = llm.bind_tools(tools)
 else:
@@ -125,11 +144,21 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
     HERE IS THE USER'S FULL PROFILE:
     - Raw Resume Data: {json.dumps(user_profile.get('resume'), indent=2)}
     - Calculated Skill Scores (out of 20): {json.dumps(user_profile.get('skillScores'), indent=2)}
-    - Target Goals: {json.dumps(user_profile.get('targetVector'), indent=2)}
+    - Target Job vector: {json.dumps(user_profile.get('targetVector'), indent=2)}
+    - Current Job and career path for final job: {json.dumps(user_profile.get('careerPath'), indent=2)}
+    - Target Course Vector: {json.dumps(user_profile.get('courseScore'), indent=2)}
+    - Target Mentor Vector: {json.dumps(user_profile.get('mentorScore'), indent=2)}
+
+    CONTEXT OF PROFILE DETAILS:
+    - The target course and mentor vectors are used to search against the mentor and courses database to sort the courses and mentors by similarity to the target vectors
+    - You are given the tools to adjust the vectors by appropriate weightages, based on the user's indication in his prompt of what his preferences for course/mentor are
+    - The tools for adjusting the vectors expect a transformative vector in the arguement, indicating how much to adjust each stat in the vector by
 
     YOUR TASKS:
     - If the user asks a general question about their resume (e.g., "what was my role at X?"), answer it by referencing the 'Raw Resume Data'.
     - If the user talks about a desired job or wanting to change their career path, use the 'update_target_vector' tool.
+    - If the user talks about any preferences for their recommended courses, use the 'course_target_vector_adjuster' tool. Inform the user that the preferences has been adjusted.
+    - If the user talks about any preferences for their recommended mentors, use the 'mentor_target_vector_adjuster' tool. Inform the user that the preferences has been adjusted.
     - For anything else, respond conversationally.
     """
     
