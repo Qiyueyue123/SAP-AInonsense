@@ -275,55 +275,22 @@ def get_stats():
         
         user_data = user_doc.to_dict()
 
-        # --- Recommendations (real query + fallback) ---
+        courses = user_data.get("sortedCourses")
+        mentors = user_data.get("sortedMentors")
+        stats = user_data.get("skillScore") 
+        career_path = user_data.get("careerPath")
+        print("SHIT HAPPENS HERE")
+        print(mentors)
+        print(courses)
+        print(stats)
+        print(career_path)
 
-        # 1) Prefer explicit lists already saved on the user profile
-        raw_courses = user_data.get("course_rec")
-        raw_mentors = user_data.get("mentors") if "mentors" in user_data else user_data.get("mentor")
-
-        def _to_listish(v):
-            """Accept list or dict and return a list of objects {id, name?, score?}."""
-            if isinstance(v, list):
-                return v
-            if isinstance(v, dict):
-                items = []
-                for k, val in v.items():
-                    if isinstance(val, dict):
-                        # keep existing fields (e.g., name, url, score)
-                        item = {"id": k, **val}
-                        item.setdefault("name", k)
-                    else:
-                        # scalar score; synthesize name from key
-                        item = {"id": k, "name": str(k), "score": val}
-                    items.append(item)
-                return items
-            return []
-
-        courses_rec = _to_listish(raw_courses)
-        mentors_rec = _to_listish(raw_mentors)
-
-        # 2) If nothing saved yet, derive from score dicts on the profile
-        #    (These exist from create-account: courseScore / mentorScore)
-        if not courses_rec:
-            course_score = user_data.get("courseScore", {}) or {}
-            courses_rec = [
-                {"id": k, "name": str(k), "score": float(v)}
-                for k, v in sorted(course_score.items(), key=lambda kv: kv[1], reverse=True)
-            ][:5]  # top 5
-
-        if not mentors_rec:
-            mentor_score = user_data.get("mentorScore", {}) or {}
-            mentors_rec = [
-                {"id": k, "name": str(k), "score": float(v)}
-                for k, v in sorted(mentor_score.items(), key=lambda kv: kv[1], reverse=True)
-            ][:5]  # top 5
-
-        # Return the data in the format the frontend expects
+        
         return jsonify({
-            "skillScore": user_data.get("skillScore", {}),
-            "careerPath": user_data.get("careerPath", []),
-            "courses": courses_rec,
-            "mentors": mentors_rec
+            "skillScore": stats,
+            "careerPath": career_path,
+            "courses": courses,
+            "mentors": mentors
         }), 200
 
 
