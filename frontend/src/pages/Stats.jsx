@@ -15,6 +15,10 @@ export default function Stats() {
   const [mentors, setMentors] = useState([]);
   const [careerPath, setCareerPath] = useState([]);
   const [skillScore, setSkillScore] = useState({});
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const [showAllMentors, setShowAllMentors] = useState(false);
+  const visibleCourses = showAllCourses ? courses : courses.slice(0, 3);
+  const visibleMentors = showAllMentors ? mentors : mentors.slice(0, 3);
 
   // Helper to convert score -> percent (assume 0–20 scale; tweak if different)
   const toPct = (v) => {
@@ -84,34 +88,55 @@ export default function Stats() {
           marginTop: "1rem",
         }}
       >
-        {/* Left: Recommendations */}
-        <div style={{ flex: 2 }}>
-          <h3>Recommendations</h3>
+      {/* Left: Recommendations */}
+      <div style={{ flex: 2 }}>
+        <h3>Recommendations</h3>
 
-          <div>
-            <strong>Courses</strong>
-            {loading && <p>Loading…</p>}
-            {err && <p style={{ color: "red" }}>{err}</p>}
-            <ul>
-              {courses.map((course) => (
-                <li key={course.id ?? course.name}>
-                  {course.name ?? String(course)}
-                </li>
-              ))}
-              <li><a href="#">View all</a></li>
-            </ul>
-          </div>
+        <div>
+          <strong>Courses</strong>
+          {loading && <p>Loading…</p>}
+          {err && <p style={{ color: "red" }}>{err}</p>}
+          <ul>
+            {visibleCourses.map((course) => (
+              <li key={course.id ?? course.name}>
+                {course.name ?? String(course)}
+              </li>
+            ))}
+          </ul>
 
-          <div style={{ marginTop: 16 }}>
-            <strong>Mentors</strong>
-            <ul>
-              {mentors.map((m) => (
-                <li key={m.id ?? m.name}>{m.name ?? String(m)}</li>
-              ))}
-              <li><a href="#">View all</a></li>
-            </ul>
-          </div>
+          {courses.length > 3 && (
+            <button
+              type="button"
+              onClick={() => setShowAllCourses((v) => !v)}
+              style={{ background: "none", border: "none", color: "#0b5fff", padding: 0, cursor: "pointer" }}
+              aria-expanded={showAllCourses}
+            >
+              {showAllCourses ? "View less" : `View more (${courses.length - 3} more)`}
+            </button>
+          )}
         </div>
+
+        <div style={{ marginTop: 16 }}>
+          <strong>Mentors</strong>
+          <ul>
+            {visibleMentors.map((m) => (
+              <li key={m.id ?? m.name}>{m.name ?? String(m)}</li>
+            ))}
+          </ul>
+
+          {mentors.length > 3 && (
+            <button
+              type="button"
+              onClick={() => setShowAllMentors((v) => !v)}
+              style={{ background: "none", border: "none", color: "#0b5fff", padding: 0, cursor: "pointer" }}
+              aria-expanded={showAllMentors}
+            >
+              {showAllMentors ? "View less" : `View more (${mentors.length - 3} more)`}
+            </button>
+          )}
+        </div>
+      </div>
+
 
         {/* Middle: Chatbot */}
         <div
