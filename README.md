@@ -1,10 +1,4 @@
-# SAP-AInonsense
-# Project Name
-
-
-> ⚠️ **Do not commit `.env` files.** Use `.env.example` files as templates and keep your actual `.env` local.
-
----
+# CareerAura
 
 ## Prerequisites
 
