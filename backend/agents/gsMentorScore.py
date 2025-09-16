@@ -7,12 +7,12 @@ def get_user_data(db,uid):
     userDoc = userRef.get().to_dict()
     return userDoc
 
-def getterMentorScore(uid):
-    mentorScore = get_user_data(uid)["mentorScore"]
+def getterMentorScore(db, uid):
+    mentorScore = get_user_data(db, uid)["mentorScore"]
     return mentorScore
 
 def setterMentorScore(db, uid, modifierVector):
-    mentorScore = getterMentorScore(uid)
+    mentorScore = getterMentorScore(db, uid)
 
     for key, mod_value in modifierVector.items():
         current_value = mentorScore.get(key, 0)

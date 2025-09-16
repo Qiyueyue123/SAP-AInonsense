@@ -89,33 +89,59 @@ def retrieve_relevant_memory(user_id, current_input, db):
 # --- "Tools" the LLM can use ---
 
 @tool
-def course_list_adjuster(*args, **kwargs):
+def course_list_adjuster(db, uid: str, modifierVector):
     '''IF USER INDICATES CHANGE IN COURSE PREFERNCES, UPDATE THE COURSE TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION
     THE FUNCTION WILL UPDATE THE TARGET VECTOR AND DO A NEW SEARCH AND UPDATE THE RECOMMENDED COURSE LIST IN THE DB
+    THIS A TEMPLATE OF THE SCHEMA TO USE FOR THE MODIFIER VECTOR, WITH DUMMY VARIABLES, THE KEYS ARE THE STATS AND THE VALUES ARE HOW MUCH TO TRANSFORM BY (MAKE SURE EACH TRANSFORMATION IS LESS THAN 10):
+    dummyModeifierVector = {
+        'Client Management':      1.2,
+        'UI/UX Design':           5.3,
+        'Communication':          2.0,   
+        'Data Analysis':          3.1,
+        'Code Optimization':      0.0,  
+        'Team Leadership':       -3.2,
+        'Presentation Skills':   -7.1,
+        'Database Management':    0.0,
+        'Automation/Scripting':  -0.5 ,
+        'Problem Solving':        0.0    
+        }
     '''
-    setterCourseScore(*args, **kwargs)
+    setterCourseScore(db, uid, modifierVector)
 
 @tool
-def mentor_list_adjuster(*args, **kwargs):
+def mentor_list_adjuster(db, uid: str, modifierVector):
     '''IF USER INDICATES CHANGE IN MENTOR PREFERNCES, UPDATE THE MENTOR TARGET VECTOR USING THIS TOOL, PUT IN THE VECTOR TRANSFORMATION
     THE FUNCTION WILL UPDATE THE TARGET VECTOR AND DO A NEW SEARCH AND UPDATE THE RECOMMENDED MENTOR LIST IN THE DB
+    THIS A TEMPLATE OF THE SCHEMA TO USE FOR THE MODIFIER VECTOR, WITH DUMMY VARIABLES, THE KEYS ARE THE STATS AND THE VALUES ARE HOW MUCH TO TRANSFORM BY (MAKE SURE EACH TRANSFORMATION IS LESS THAN 10):
+    dummyModeifierVector = {
+        'Client Management':      1.2,
+        'UI/UX Design':           5.3,
+        'Communication':          2.0,   
+        'Data Analysis':          3.1,
+        'Code Optimization':      0.0,  
+        'Team Leadership':       -3.2,
+        'Presentation Skills':   -7.1,
+        'Database Management':    0.0,
+        'Automation/Scripting':  -0.5 ,
+        'Problem Solving':        0.0    
+        }
     '''
-    return setterMentorScore(*args, **kwargs)
+    return setterMentorScore(db, uid, modifierVector)
 
 #NEED TO WORK IN VALIDCAREERCHECKER MATCH JOB, CHECK VALID BEFORE UPDATE
 @tool
-def update_current_job(*args, **kwargs):
+def update_current_job(db, uid: str, newJob):
     '''IF USER INDICATES CHANGE IN CURRENT JOB, UPDATE THE CURRENT JOB USING THIS TOOL
     THE FUNCTION WILL UPDATE THE CURRENT JOB IN DB AND RECALCULATE A NEW CAREER PATH AND SAVE TO DB
     '''
-    return setterJob(*args, **kwargs)
+    return setterJob(db, uid, newJob)
 
 @tool
-def update_end_job(*args, **kwargs):
+def update_end_job(db, uid: str, newTargetJob: str):
     '''IF USER INDICATES CHANGE IN DESIRED END JOB, UPDATE THE END JOB USING THIS TOOL
     THE FUNCTION WILL UPDATE THE END JOB AND RECALCULATE A NEW CAREER PATH AND SAVE TO DB
     '''
-    return setterTargetJob(*args, **kwargs)
+    return setterTargetJob(db, uid, newTargetJob)
 
 
 
@@ -138,6 +164,7 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
     You are 'Aura', an expert career coach AI. Your primary job is to understand user intent based on the full context of their profile.
     
     HERE IS THE USER'S FULL PROFILE:
+    - User ID (uid): {uid}
     - Raw Resume Data: {json.dumps(user_profile.get('resume'), indent=2)}
     - Calculated Skill Scores (out of 20): {json.dumps(user_profile.get('skillScores'), indent=2)}
     - Current Job and career path for final job: {json.dumps(user_profile.get('careerPath'), indent=2)}

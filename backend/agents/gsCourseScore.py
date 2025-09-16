@@ -8,12 +8,12 @@ def get_user_data(db,uid):
     userDoc = userRef.get().to_dict()
     return userDoc
 
-def getterCourseScore(uid):
-    courseScore = get_user_data(uid)["courseScore"]
+def getterCourseScore(db, uid):
+    courseScore = get_user_data(db, uid)["courseScore"]
     return courseScore
 
-def setterCourseScore(db,uid, modifierVector):
-    courseScore = getterCourseScore(uid)
+def setterCourseScore(db, uid, modifierVector):
+    courseScore = getterCourseScore(db, uid)
 
     for key, mod_value in modifierVector.items():
         current_value = courseScore.get(key, 0)
