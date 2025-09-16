@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from updateCareerPath import updateCareer
+from .updateCareerPath import updateCareer
 
 def get_user_data(db,uid):
     userRef = db.collection('users').document(uid)

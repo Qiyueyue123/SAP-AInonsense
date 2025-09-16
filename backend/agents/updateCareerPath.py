@@ -1,5 +1,5 @@
-from .gsJob import getterJob
-from .gsTargetJob import getterTargetJob
+from .getterJob import getterJob
+from .getterTargetJob import getterTargetJob
 from .careerPathConstructor import careerPathConstructor
 
 
