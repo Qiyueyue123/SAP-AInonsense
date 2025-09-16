@@ -251,6 +251,57 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/career-path", methods=["GET"])
+@verify_firebase_token
+def get_career_path():
+    
+    try:
+
+        # Get the UID from the verified Firebase token
+        uid = getattr(request, "user", {}).get("uid")
+        
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+        
+        doc_ref = db.collection("users").document(uid)
+        user_doc = doc_ref.get()
+        
+        if not user_doc.exists:
+            return jsonify({"error": "User profile not found"}), 404
+        
+        user_data = user_doc.to_dict()
+        careerPath = user_data.get("careerPath")
+        
+        return jsonify({"careerPath":careerPath})
+    
+    except Exception as e:
+        print(f"[ERROR /stats]: {str(e)}")
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+    
+@app.route("/career-path", methods=["POST"])
+@verify_firebase_token
+def post_career_path():
+    try:
+        # Get the UID from the verified Firebase token
+        uid = getattr(request, "user", {}).get("uid")
+        
+        if not uid:
+            return jsonify({"error": "Unauthenticated"}), 401
+        
+        doc_ref = db.collection("users").document(uid)
+        user_doc = doc_ref.get()
+        
+        if not user_doc.exists:
+            return jsonify({"error": "User profile not found"}), 404
+        
+        user_data = user_doc.to_dict()
+        careerPath = user_data.get("careerPath")
+        
+        return jsonify({"careerPath":careerPath})
+    
+    except Exception as e:
+        print(f"[ERROR /stats]: {str(e)}")
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
 @app.route("/stats", methods=["GET"])

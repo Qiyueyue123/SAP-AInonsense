@@ -115,19 +115,20 @@ export default function Stats() {
 
         {/* Middle: Chatbot */}
         <div
-          style={{
+            style={{
             background: "#f7f7f7",
             borderRadius: "6px",
             flex: 1.5,
             minHeight: "500px",
+            maxHeight: "600px", // ✅ limit height to allow scrolling
             minWidth: "500px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "flex-start",
             padding: "1rem",
-            overflowY: "auto",
-          }}
+            overflowY: "auto", // ✅ enables vertical scroll
+  }}
         >
           <h4>CHATBOT</h4>
           <Chatbot />
