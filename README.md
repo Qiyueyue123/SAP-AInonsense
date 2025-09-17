@@ -1,6 +1,7 @@
 # CareerAura
 
 ## Prerequisites
+USE SaviourOfMainJosh not Main when pulling the code
 
 - **Python** = 3.11  
 - **virtualenv** 
