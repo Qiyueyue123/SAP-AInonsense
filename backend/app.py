@@ -12,7 +12,6 @@ from agents.validCareerChecker import matchJob
 from agents.careerPathConstructor import careerPathConstructor
 import uuid
 import json
-from agents.gsTargetScore import assignTargetScore, setterTargetScore
 from agents.course import search_courses
 from agents.mentor import search_mentors
 from agents.edit_resume import edit_resume

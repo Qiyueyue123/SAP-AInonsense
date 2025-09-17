@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from .updateCareerPath import updateCareer
+from .validCareerChecker import matchJob
 
 def get_user_data(db,uid):
     userRef = db.collection('users').document(uid)
@@ -12,7 +13,10 @@ def getterTargetJob(db,uid):
     return targetJob
 
 def setterTargetJob(db, uid, newTargetJob):
-    
+    if(matchJob(db,newTargetJob) == ""):
+        return
+    else:
+        print('ERROR HERE 20')
     db.collection('users').document(uid).update({"targetJob": newTargetJob})
     CP = updateCareer(db, uid)
     return CP

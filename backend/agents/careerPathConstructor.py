@@ -28,21 +28,30 @@ def updateSeenJobs(seenDict, jobName, path, cost):
 
 def careerPathConstructor(db, currentJob, targetJob):
     # currentJob and targetJob should be the jobName or a string
+    
     jobsRef = db.collection('jobs')
     jobs = jobsRef.stream()
+   
     dictionaryOfJobs = {}
     for job in jobs:
         data = job.to_dict()
         dictionaryOfJobs[data["jobName"]] = data
+    
+    
     dictionaryOfSeenJobs = {}
+   
     currentNode = dictionaryOfJobs[currentJob]
     targetNode = dictionaryOfJobs[targetJob]
     cameFrom = []
+    
     currentDistance = 0
+    
     dictionaryOfSeenJobs[currentNode["jobName"]] = (cameFrom, currentDistance)
+    
     # using a pointer is considered a cost of 1
     priorityQ = []
     # to treat as a heapq, use heapq.heappush(priorityQ, (cost, nextJobName))
+   
     for jobName in dictionaryOfJobs.keys():
         if jobName in currentNode["futureJobs"]:
             cost = predictedCost(currentNode, dictionaryOfJobs[jobName], targetNode)
@@ -53,6 +62,7 @@ def careerPathConstructor(db, currentJob, targetJob):
             heapq.heappush(priorityQ, (cost, jobName))
             updateSeenJobs(dictionaryOfSeenJobs, jobName, cameFrom + [currentNode["jobName"]], cost)
     i = 100
+    
     while (len(priorityQ) > 0 and i > 0):
         i -= 1
         # just in case this garbage doesnt work
