@@ -203,9 +203,9 @@ def upload_resume():
         skill_score, feedback = result_tuple
         search_courses(uid, db)
         search_mentors(uid, db)
-        print("GOOD BYE", skill_score)
+        
         doc_ref.update({"skillScore": skill_score}) 
-        print('HELLO')
+        
         return jsonify({"skillScore":skillScore,"feedback":feedback}),200
 
     except Exception as e:
@@ -265,14 +265,34 @@ def update_resume():
             return jsonify({"error": "Unauthenticated"}), 401
 
         data = request.get_json()
+        
         updated_resume = data.get("resume")
         if updated_resume is None:
             return jsonify({"error": "No resume data provided"}), 400
-
+        
+        
+        unique_id = str(uuid.uuid4())
+        filename = f"resume_{unique_id}_updated.json"
+        os.makedirs("temp", exist_ok=True)
+        filepath = os.path.join("temp", filename)
+        print("276")
+        print("type:", type(updated_resume))
+        with open(filepath, "w") as f:
+            json.dump(updated_resume, f)
+        print("279")
         user_ref = db.collection("users").document(uid)
         user_ref.set({"resume": updated_resume}, merge=True)
+        print("HELLO 281")
+        result_tuple = resumeProcessor.processResume(filepath,False)
+        if not result_tuple:
+            result_tuple = [skill_score,""]
+        # assuming processResume returns (skill_score, feedback)
+        skill_score, feedback = result_tuple
+        user_ref = db.collection("users").document(uid)
+        user_ref.update({"skillScore": skill_score}) 
 
-        return jsonify({"message": "Resume updated successfully"}), 200
+
+        return jsonify({"message": "Resume updated successfully","feedback":feedback}), 200
 
     except Exception as e:
         return jsonify({"error": f"Failed to update resume: {str(e)}"}), 500

@@ -25,7 +25,7 @@ def edit_resume(header, content, mode, text_rephrase = ""): #mode should be 1 or
             ("system", '''
              You are an expert career coach guiding the user in writing his/her resume.
         You have two modes:
-        1. Paraphrase the input from the user
+        1. Paraphrase the input from the user. Omit gibberish or words that do not exists or are completely out of place.
         2. Help them add a new activity or entry for their resume under the respective section
         For both, take context from the section {header} and the details {content}
         Your job now is mode {mode}

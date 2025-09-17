@@ -173,8 +173,9 @@ class ResumeProcessor:
         with open(filepath, 'w') as restructuredFile:
             json.dump(parsedResponse, restructuredFile, indent=4)
         return filepath
-    def processResume(self, filepath):
-        filepath = self.restructureJson(filepath)
+    def processResume(self, filepath, restruct = True):
+        if restruct:
+            filepath = self.restructureJson(filepath)
         if filepath == None:
             return
         # Load resume
