@@ -136,7 +136,9 @@ def create_account():
                         "skillScore": skillScore,
                         "mentorScore": valueToReturn,
                         "courseScore": valueToReturn,
-                        "careerPath" : currentCareerPath
+                        "careerPath" : currentCareerPath,
+                        "courses" : [],
+                        "mentors" : []
                           })
         
         
