@@ -33,13 +33,16 @@ const ResumeUpload = () => {
 
     setUploading(true);
     setUploadError("");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+      
+    }
+    console.log(formData.get("resume"))
 
     try {
-      const response = await api.post("/upload-resume", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Content type for file upload
-        },
-      });
+      const response = await api.post("/upload-resume", formData,{
+  headers: { "Content-Type": "multipart/form-data" },
+});
 
       console.log("Upload successful:", response.data);
       // Handle success (e.g., show a success message)

@@ -138,7 +138,8 @@ def create_account():
                         "courseScore": valueToReturn,
                         "careerPath" : currentCareerPath,
                         "courses" : [],
-                        "mentors" : []
+                        "mentors" : [],
+                        "resume"  : {}
                           })
         
         
@@ -162,16 +163,14 @@ def upload_resume():
         uid = getattr(request, "user", {}).get("uid")
         if not uid:
             return jsonify({"error": "Unauthenticated"}), 401
+        requestResult = request
+       
 
         folderPath = "temp"
         os.makedirs(folderPath, exist_ok=True)
-
-        # Validate multipart form + file
-        if "resume" not in request.files:
-            return jsonify({"error": "No file part 'resume'"}), 400
-
-        file = request.files["resume"]
-        if file.filename == "":
+        
+        file = requestResult.files["resume"]
+        if not file or file.filename == "":
             return jsonify({"error": "No selected file"}), 400
 
         # PDF -> base64 image(s) -> structured resume JSON
@@ -198,14 +197,16 @@ def upload_resume():
 
         # Run scoring pipeline
         result_tuple = resumeProcessor.processResume(filepath)
+        if not result_tuple:
+            result_tuple [skill_score,""]
         # assuming processResume returns (skill_score, feedback)
-        skill_score, feedback = result_tuple if isinstance(result_tuple, (list, tuple)) else (None, None)
+        skill_score, feedback = result_tuple
         search_courses(uid, db)
         search_mentors(uid, db)
-        return jsonify({
-            "skillScore": skill_score,
-            "feedback": feedback
-        }), 200
+        print("GOOD BYE", skill_score)
+        doc_ref.update({"skillScore": skill_score}) 
+        print('HELLO')
+        return jsonify({"skillScore":skillScore,"feedback":feedback}),200
 
     except Exception as e:
         # In production, log stacktrace with logging library

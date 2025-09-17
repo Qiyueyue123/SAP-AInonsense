@@ -277,12 +277,6 @@ Skill Scores:
         feedback_response = self.askGpt(feedback_prompt)
 
         # Return
+        print(returnStudentSkill.returnSkill())
+        print("HELLO")
         return [returnStudentSkill.returnSkill(), feedback_response]
-if __name__ == "__main__":
-    processor = ResumeProcessor()
-    result = processor.processResume("testResume.json")
-
-    print("Skill Summary:")
-    print(result[0])  # StudentSkill object
-    print("\nFeedback:")
-    print(result[1])  # Feedback from OpenAI

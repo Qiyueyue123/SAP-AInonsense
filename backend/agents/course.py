@@ -16,7 +16,7 @@ def search_courses(uid, db):
     mentor_target = user_doc.to_dict().get("courseScore", None)
 
     # Debug: Check mentor target data
-    print("Course Target (User's Scores):", mentor_target)
+
 
     target_array = np.array([mentor_target[skill] for skill in sorted(mentor_target)])
 
@@ -37,8 +37,7 @@ def search_courses(uid, db):
         mentor_vectors.append(mentor_vector.flatten())  # Flatten it back into a 1D array
         mentor_names.append(mentor_name)
 
-    # Debug: Check mentor vectors
-    print("Course Vectors (Before Cosine Similarity):", mentor_vectors)
+   
 
     # Convert mentor vectors into a NumPy array
     mentor_vectors = np.array(mentor_vectors)
@@ -55,14 +54,12 @@ def search_courses(uid, db):
     # Sort by similarity in descending order
     sorted_mentors = sorted(mentor_similarity_list, key=lambda x: x[1], reverse=True)
 
-    # Print sorted results
-    for mentor, score in sorted_mentors:
-        print(f"{mentor}: {score:.4f}")
+  
     
-    print()
+    
     # Optional: store just the mentor names in order
     sorted_mentor_names = [mentor for mentor, score in sorted_mentors]
-    print("Sorted Courses:", sorted_mentor_names)
+  
 
     # Save sorted mentor names to Firestore under the user's document
     user_ref.update({
