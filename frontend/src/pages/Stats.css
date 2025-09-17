@@ -40,10 +40,12 @@
 .panel--chatbot {
   display: flex;
   flex-direction: column;
-  align-items: center;  /* centers the header and content */
+  align-items: center;      /* centers the header and content */
   justify-content: flex-start;
   min-height: 520px;
-  min-width: 0;        /* allow grid to shrink nicely */
+  min-width: 0;             /* allow grid to shrink nicely */
+  max-height: 600px;        
+  overflow-y: auto;        
 }
 .panel--chatbot h4 {
   margin: 0 0 0.75rem;

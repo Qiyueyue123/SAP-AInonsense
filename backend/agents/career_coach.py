@@ -180,7 +180,8 @@ def get_chatbot_response(user_message: str, uid: str,  db=None):
     CONTEXT OF PROFILE DETAILS:
     - The target course and mentor vectors are used to search against the mentor and courses database to sort the courses and mentors by similarity to the target vectors
     - You are given the tools to adjust the vectors by appropriate weightages, based on the user's indication in his prompt of what his preferences for course/mentor are
-    - The tools for adjusting the vectors expect a transformative vector in the arguement, indicating how much to adjust each stat in the vector by
+    - The tools for adjusting the vectors expect a transformative vector in the argument, indicating how much to adjust each stat in the vector by
+    - When someone refers to their skillset or equivalent, unless they heavily imply their job or target, they refer to skill score and not target score
 
     YOUR TASKS:
     - If the user asks a general question about their resume (e.g., "what was my role at X?"), answer it by referencing the 'Raw Resume Data'. For list of datas, only mention the first 5 entries.
