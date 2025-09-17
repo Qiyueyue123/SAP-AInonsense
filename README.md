@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- **Python** < 3.2  
-- **virtualenv** (since `venv` is not available in Python < 3.3)  
+- **Python** = 3.11  
+- **virtualenv** 
 - **Node.js** 18+ and **npm** 9+  
 - **Git**
 
